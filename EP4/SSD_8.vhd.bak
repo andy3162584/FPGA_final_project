@@ -1,0 +1,145 @@
+--******************************************************
+-- Date		: 111/07/11
+-- Author	: BO-AN,CHEN
+-- School	: Daan-Electronics
+-- FPGA		: Cyclone III   (EP3C16Q240C8N)
+-- Title	: SSD display
+-- LES		: /15408
+--*******************************************************
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+
+entity SSD_8 is
+	generic(fmax : integer := 5E7);
+port(
+	--input pin
+	clk			:in std_logic;
+	rst			:in std_logic;
+	clk_flash	:in std_logic;
+	scan_p		:in std_logic;
+	dot			:in std_logic_vector(7 downto 0);
+	flash		:in std_logic_vector(7 downto 0);
+	data		:in std_logic_vector(47 downto 0);
+	--output pin
+	seg		:out std_logic_vector(7 downto 0);
+	seg_scan	:out std_logic_vector(7 downto 0)
+);
+end SSD_8;
+--*******************************************************
+architecture beh of SSD_8 is
+	--SSD
+	signal seg_out		:std_logic_vector(7 downto 0);
+	signal scan_cnt		:integer range 0 to 7;
+	--data up count
+	signal bin			:std_logic_vector(5 downto 0);
+	--blinking
+	signal clk_flash_7	:std_logic_vector(6 downto 0);
+	signal flag_flash	:std_logic;
+begin
+	----------------------------------------------------
+	--SSD scan
+	process(clk,rst)
+	begin
+		if(rst = '0')then
+			scan_cnt <= 0;
+		elsif(clk'event and clk='1')then
+			if(scan_p = '1')then
+				if(scan_cnt < 7)then
+					scan_cnt <= scan_cnt + 1;
+				else
+					scan_cnt <= 0;
+				end if;
+			end if;
+		end if;
+	end process;
+	----------------------------------------------------
+	--scan display
+	seg_scan <= "11111110" when (scan_cnt = 0)else
+				"11111101" when (scan_cnt = 1)else
+				"11111011" when (scan_cnt = 2)else
+				"11110111" when (scan_cnt = 3)else
+				"11101111" when (scan_cnt = 4)else
+				"11011111" when (scan_cnt = 5)else
+				"10111111" when (scan_cnt = 6)else
+				"01111111";
+	--SSD display
+	seg_out(6 downto 0) <=  "0111111" when (bin = "000000")else -- 0
+						"0000110" when (bin = "000001")else -- 1
+						"1011011" when (bin = "000010")else -- 2
+						"1001111" when (bin = "000011")else -- 3
+						"1100110" when (bin = "000100")else -- 4
+						"1101101" when (bin = "000101")else -- 5
+						"1111101" when (bin = "000110")else -- 6
+						"0000111" when (bin = "000111")else -- 7
+						"1111111" when (bin = "001000")else -- 8
+						"1101111" when (bin = "001001")else -- 9
+						"1110111" when (bin = "001010")else -- A
+						"1111100" when (bin = "001011")else -- B
+						"0111001" when (bin = "001100")else -- C
+						"1011110" when (bin = "001101")else -- D
+						"1111001" when (bin = "001110")else -- E
+						"1110001" when (bin = "001111")else -- F
+						"0111101" when (bin = "010000")else -- G
+						"1110110" when (bin = "010001")else -- H
+						"0110000" when (bin = "010010")else -- I
+						"0001110" when (bin = "010011")else -- J
+						"1110101" when (bin = "010100")else -- K
+						"0111000" when (bin = "010101")else -- L
+						"1010101" when (bin = "010110")else -- M
+						"1010100" when (bin = "010111")else -- N
+						"1011100" when (bin = "011000")else -- O
+						"1110011" when (bin = "011001")else -- P
+						"1100111" when (bin = "011010")else -- Q
+						"1010000" when (bin = "011011")else -- R
+						"1101101" when (bin = "011100")else -- S
+						"1111000" when (bin = "011101")else -- T
+						"0111110" when (bin = "011110")else -- U
+						"0001100" when (bin = "011111")else -- V
+						"0101010" when (bin = "100000")else -- W
+						"1001001" when (bin = "100001")else -- X
+						"1101110" when (bin = "100010")else -- Y
+						"1011011" when (bin = "100011")else -- Z
+						"1000000" when (bin = "100100")else -- -
+						"1100011" when (bin = "100101")else -- *
+						"1010010" when (bin = "100110")else -- /
+						"0000000";
+	--bin data
+	bin <=	data( 5 downto  0) when (scan_cnt = 0)else
+			data(11 downto  6) when (scan_cnt = 1)else
+			data(17 downto 12) when (scan_cnt = 2)else
+			data(23 downto 18) when (scan_cnt = 3)else
+			data(29 downto 24) when (scan_cnt = 4)else
+			data(35 downto 30) when (scan_cnt = 5)else
+			data(41 downto 36) when (scan_cnt = 6)else
+			data(47 downto 42);
+	--dot display
+	seg_out(7) <=	dot(0) when (scan_cnt = 0)else
+					dot(1) when (scan_cnt = 1)else
+					dot(2) when (scan_cnt = 2)else
+					dot(3) when (scan_cnt = 3)else
+					dot(4) when (scan_cnt = 4)else
+					dot(5) when (scan_cnt = 5)else
+					dot(6) when (scan_cnt = 6)else
+					dot(7) when (scan_cnt = 7);
+	--flash
+	flag_flash <=	flash(0) when (scan_cnt = 0)else
+					flash(1) when (scan_cnt = 1)else
+					flash(2) when (scan_cnt = 2)else
+					flash(3) when (scan_cnt = 3)else
+					flash(4) when (scan_cnt = 4)else
+					flash(5) when (scan_cnt = 5)else
+					flash(6) when (scan_cnt = 6)else
+					flash(7) when (scan_cnt = 7);
+	---------------------------------------------------
+	--SSD blink
+	seg(7) <= seg_out(7);
+	clk_flash_7<= clk_flash & clk_flash & clk_flash & clk_flash & clk_flash & clk_flash & clk_flash;
+	seg(6 downto 0) <= (seg_out(6 downto 0) and clk_flash_7)when(flag_flash = '1')else
+						seg_out(6 downto 0);
+end beh;
+
+
+
+

@@ -1,0 +1,845 @@
+Analysis & Synthesis report for EP4
+Fri Jun 12 00:27:29 2026
+Quartus II 64-Bit Version 13.0.1 Build 232 06/12/2013 Service Pack 1 SJ Web Edition
+
+
+---------------------
+; Table of Contents ;
+---------------------
+  1. Legal Notice
+  2. Analysis & Synthesis Summary
+  3. Analysis & Synthesis Settings
+  4. Parallel Compilation
+  5. Analysis & Synthesis Source Files Read
+  6. Analysis & Synthesis Resource Usage Summary
+  7. Analysis & Synthesis Resource Utilization by Entity
+  8. State Machine - |EP4|\x5:ps
+  9. State Machine - |EP4|RS232:U2|tx_state
+ 10. User-Specified and Inferred Latches
+ 11. Registers Removed During Synthesis
+ 12. Removed Registers Triggering Further Register Optimizations
+ 13. General Register Statistics
+ 14. Inverted Register Statistics
+ 15. Multiplexer Restructuring Statistics (Restructuring Performed)
+ 16. Parameter Settings for User Entity Instance: Top-level Entity: |EP4
+ 17. Parameter Settings for User Entity Instance: SSD_8:U1
+ 18. Parameter Settings for User Entity Instance: RS232:U2
+ 19. Parameter Settings for User Entity Instance: LCD:U3
+ 20. Parameter Settings for Inferred Entity Instance: lpm_divide:Div0
+ 21. Parameter Settings for Inferred Entity Instance: lpm_divide:Div1
+ 22. Parameter Settings for Inferred Entity Instance: lpm_divide:Mod0
+ 23. Port Connectivity Checks: "SSD_8:U1"
+ 24. Elapsed Time Per Partition
+ 25. Analysis & Synthesis Messages
+
+
+
+----------------
+; Legal Notice ;
+----------------
+Copyright (C) 1991-2013 Altera Corporation
+Your use of Altera Corporation's design tools, logic functions 
+and other software and tools, and its AMPP partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Altera Program License 
+Subscription Agreement, Altera MegaCore Function License 
+Agreement, or other applicable license agreement, including, 
+without limitation, that your use is for the sole purpose of 
+programming logic devices manufactured by Altera and sold by 
+Altera or its authorized distributors.  Please refer to the 
+applicable agreement for further details.
+
+
+
++--------------------------------------------------------------------------------------+
+; Analysis & Synthesis Summary                                                         ;
++------------------------------------+-------------------------------------------------+
+; Analysis & Synthesis Status        ; Successful - Fri Jun 12 00:27:29 2026           ;
+; Quartus II 64-Bit Version          ; 13.0.1 Build 232 06/12/2013 SP 1 SJ Web Edition ;
+; Revision Name                      ; EP4                                             ;
+; Top-level Entity Name              ; EP4                                             ;
+; Family                             ; Cyclone IV E                                    ;
+; Total logic elements               ; 1,890                                           ;
+;     Total combinational functions  ; 1,593                                           ;
+;     Dedicated logic registers      ; 602                                             ;
+; Total registers                    ; 602                                             ;
+; Total pins                         ; 118                                             ;
+; Total virtual pins                 ; 0                                               ;
+; Total memory bits                  ; 0                                               ;
+; Embedded Multiplier 9-bit elements ; 0                                               ;
+; Total PLLs                         ; 0                                               ;
++------------------------------------+-------------------------------------------------+
+
+
++----------------------------------------------------------------------------------------------------------------------+
+; Analysis & Synthesis Settings                                                                                        ;
++----------------------------------------------------------------------------+--------------------+--------------------+
+; Option                                                                     ; Setting            ; Default Value      ;
++----------------------------------------------------------------------------+--------------------+--------------------+
+; Device                                                                     ; EP4CE115F29C7      ;                    ;
+; Top-level entity name                                                      ; EP4                ; EP4                ;
+; Family name                                                                ; Cyclone IV E       ; Cyclone IV GX      ;
+; Use smart compilation                                                      ; Off                ; Off                ;
+; Enable parallel Assembler and TimeQuest Timing Analyzer during compilation ; On                 ; On                 ;
+; Enable compact report table                                                ; Off                ; Off                ;
+; Restructure Multiplexers                                                   ; Auto               ; Auto               ;
+; Create Debugging Nodes for IP Cores                                        ; Off                ; Off                ;
+; Preserve fewer node names                                                  ; On                 ; On                 ;
+; Disable OpenCore Plus hardware evaluation                                  ; Off                ; Off                ;
+; Verilog Version                                                            ; Verilog_2001       ; Verilog_2001       ;
+; VHDL Version                                                               ; VHDL_1993          ; VHDL_1993          ;
+; State Machine Processing                                                   ; Auto               ; Auto               ;
+; Safe State Machine                                                         ; Off                ; Off                ;
+; Extract Verilog State Machines                                             ; On                 ; On                 ;
+; Extract VHDL State Machines                                                ; On                 ; On                 ;
+; Ignore Verilog initial constructs                                          ; Off                ; Off                ;
+; Iteration limit for constant Verilog loops                                 ; 5000               ; 5000               ;
+; Iteration limit for non-constant Verilog loops                             ; 250                ; 250                ;
+; Add Pass-Through Logic to Inferred RAMs                                    ; On                 ; On                 ;
+; Infer RAMs from Raw Logic                                                  ; On                 ; On                 ;
+; Parallel Synthesis                                                         ; On                 ; On                 ;
+; DSP Block Balancing                                                        ; Auto               ; Auto               ;
+; NOT Gate Push-Back                                                         ; On                 ; On                 ;
+; Power-Up Don't Care                                                        ; On                 ; On                 ;
+; Remove Redundant Logic Cells                                               ; Off                ; Off                ;
+; Remove Duplicate Registers                                                 ; On                 ; On                 ;
+; Ignore CARRY Buffers                                                       ; Off                ; Off                ;
+; Ignore CASCADE Buffers                                                     ; Off                ; Off                ;
+; Ignore GLOBAL Buffers                                                      ; Off                ; Off                ;
+; Ignore ROW GLOBAL Buffers                                                  ; Off                ; Off                ;
+; Ignore LCELL Buffers                                                       ; Off                ; Off                ;
+; Ignore SOFT Buffers                                                        ; On                 ; On                 ;
+; Limit AHDL Integers to 32 Bits                                             ; Off                ; Off                ;
+; Optimization Technique                                                     ; Balanced           ; Balanced           ;
+; Carry Chain Length                                                         ; 70                 ; 70                 ;
+; Auto Carry Chains                                                          ; On                 ; On                 ;
+; Auto Open-Drain Pins                                                       ; On                 ; On                 ;
+; Perform WYSIWYG Primitive Resynthesis                                      ; Off                ; Off                ;
+; Auto ROM Replacement                                                       ; On                 ; On                 ;
+; Auto RAM Replacement                                                       ; On                 ; On                 ;
+; Auto DSP Block Replacement                                                 ; On                 ; On                 ;
+; Auto Shift Register Replacement                                            ; Auto               ; Auto               ;
+; Allow Shift Register Merging across Hierarchies                            ; Auto               ; Auto               ;
+; Auto Clock Enable Replacement                                              ; On                 ; On                 ;
+; Strict RAM Replacement                                                     ; Off                ; Off                ;
+; Allow Synchronous Control Signals                                          ; On                 ; On                 ;
+; Force Use of Synchronous Clear Signals                                     ; Off                ; Off                ;
+; Auto RAM Block Balancing                                                   ; On                 ; On                 ;
+; Auto RAM to Logic Cell Conversion                                          ; Off                ; Off                ;
+; Auto Resource Sharing                                                      ; Off                ; Off                ;
+; Allow Any RAM Size For Recognition                                         ; Off                ; Off                ;
+; Allow Any ROM Size For Recognition                                         ; Off                ; Off                ;
+; Allow Any Shift Register Size For Recognition                              ; Off                ; Off                ;
+; Use LogicLock Constraints during Resource Balancing                        ; On                 ; On                 ;
+; Ignore translate_off and synthesis_off directives                          ; Off                ; Off                ;
+; Timing-Driven Synthesis                                                    ; On                 ; On                 ;
+; Report Parameter Settings                                                  ; On                 ; On                 ;
+; Report Source Assignments                                                  ; On                 ; On                 ;
+; Report Connectivity Checks                                                 ; On                 ; On                 ;
+; Ignore Maximum Fan-Out Assignments                                         ; Off                ; Off                ;
+; Synchronization Register Chain Length                                      ; 2                  ; 2                  ;
+; PowerPlay Power Optimization                                               ; Normal compilation ; Normal compilation ;
+; HDL message level                                                          ; Level2             ; Level2             ;
+; Suppress Register Optimization Related Messages                            ; Off                ; Off                ;
+; Number of Removed Registers Reported in Synthesis Report                   ; 5000               ; 5000               ;
+; Number of Swept Nodes Reported in Synthesis Report                         ; 5000               ; 5000               ;
+; Number of Inverted Registers Reported in Synthesis Report                  ; 100                ; 100                ;
+; Clock MUX Protection                                                       ; On                 ; On                 ;
+; Auto Gated Clock Conversion                                                ; Off                ; Off                ;
+; Block Design Naming                                                        ; Auto               ; Auto               ;
+; SDC constraint protection                                                  ; Off                ; Off                ;
+; Synthesis Effort                                                           ; Auto               ; Auto               ;
+; Shift Register Replacement - Allow Asynchronous Clear Signal               ; On                 ; On                 ;
+; Pre-Mapping Resynthesis Optimization                                       ; Off                ; Off                ;
+; Analysis & Synthesis Message Level                                         ; Medium             ; Medium             ;
+; Disable Register Merging Across Hierarchies                                ; Auto               ; Auto               ;
+; Resource Aware Inference For Block RAM                                     ; On                 ; On                 ;
+; Synthesis Seed                                                             ; 1                  ; 1                  ;
++----------------------------------------------------------------------------+--------------------+--------------------+
+
+
+Parallel compilation was disabled, but you have multiple processors available. Enable parallel compilation to reduce compilation time.
++-------------------------------------+
+; Parallel Compilation                ;
++----------------------------+--------+
+; Processors                 ; Number ;
++----------------------------+--------+
+; Number detected on machine ; 20     ;
+; Maximum allowed            ; 1      ;
++----------------------------+--------+
+
+
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Analysis & Synthesis Source Files Read                                                                                                                              ;
++----------------------------------+-----------------+------------------------------+-----------------------------------------------------------------------+---------+
+; File Name with User-Entered Path ; Used in Netlist ; File Type                    ; File Name with Absolute Path                                          ; Library ;
++----------------------------------+-----------------+------------------------------+-----------------------------------------------------------------------+---------+
+; EP4.vhd                          ; yes             ; User VHDL File               ; D:/FPGA_project-master/EP4/EP4.vhd                                    ;         ;
+; SSD_8.vhd                        ; yes             ; User VHDL File               ; D:/FPGA_project-master/EP4/SSD_8.vhd                                  ;         ;
+; LCD.vhd                          ; yes             ; User VHDL File               ; D:/FPGA_project-master/EP4/LCD.vhd                                    ;         ;
+; RS232.vhd                        ; yes             ; User VHDL File               ; D:/FPGA_project-master/EP4/RS232.vhd                                  ;         ;
+; lpm_divide.tdf                   ; yes             ; Megafunction                 ; c:/altera/13.0sp1/quartus/libraries/megafunctions/lpm_divide.tdf      ;         ;
+; abs_divider.inc                  ; yes             ; Megafunction                 ; c:/altera/13.0sp1/quartus/libraries/megafunctions/abs_divider.inc     ;         ;
+; sign_div_unsign.inc              ; yes             ; Megafunction                 ; c:/altera/13.0sp1/quartus/libraries/megafunctions/sign_div_unsign.inc ;         ;
+; aglobal130.inc                   ; yes             ; Megafunction                 ; c:/altera/13.0sp1/quartus/libraries/megafunctions/aglobal130.inc      ;         ;
+; db/lpm_divide_uim.tdf            ; yes             ; Auto-Generated Megafunction  ; D:/FPGA_project-master/EP4/db/lpm_divide_uim.tdf                      ;         ;
+; db/sign_div_unsign_mlh.tdf       ; yes             ; Auto-Generated Megafunction  ; D:/FPGA_project-master/EP4/db/sign_div_unsign_mlh.tdf                 ;         ;
+; db/alt_u_div_07f.tdf             ; yes             ; Auto-Generated Megafunction  ; D:/FPGA_project-master/EP4/db/alt_u_div_07f.tdf                       ;         ;
+; db/add_sub_7pc.tdf               ; yes             ; Auto-Generated Megafunction  ; D:/FPGA_project-master/EP4/db/add_sub_7pc.tdf                         ;         ;
+; db/add_sub_8pc.tdf               ; yes             ; Auto-Generated Megafunction  ; D:/FPGA_project-master/EP4/db/add_sub_8pc.tdf                         ;         ;
+; db/lpm_divide_0jm.tdf            ; yes             ; Auto-Generated Megafunction  ; D:/FPGA_project-master/EP4/db/lpm_divide_0jm.tdf                      ;         ;
+; db/sign_div_unsign_olh.tdf       ; yes             ; Auto-Generated Megafunction  ; D:/FPGA_project-master/EP4/db/sign_div_unsign_olh.tdf                 ;         ;
+; db/alt_u_div_47f.tdf             ; yes             ; Auto-Generated Megafunction  ; D:/FPGA_project-master/EP4/db/alt_u_div_47f.tdf                       ;         ;
+; db/lpm_divide_kcm.tdf            ; yes             ; Auto-Generated Megafunction  ; D:/FPGA_project-master/EP4/db/lpm_divide_kcm.tdf                      ;         ;
+; db/sign_div_unsign_9nh.tdf       ; yes             ; Auto-Generated Megafunction  ; D:/FPGA_project-master/EP4/db/sign_div_unsign_9nh.tdf                 ;         ;
+; db/alt_u_div_6af.tdf             ; yes             ; Auto-Generated Megafunction  ; D:/FPGA_project-master/EP4/db/alt_u_div_6af.tdf                       ;         ;
++----------------------------------+-----------------+------------------------------+-----------------------------------------------------------------------+---------+
+
+
++--------------------------------------------------------------+
+; Analysis & Synthesis Resource Usage Summary                  ;
++---------------------------------------------+----------------+
+; Resource                                    ; Usage          ;
++---------------------------------------------+----------------+
+; Estimated Total logic elements              ; 1,890          ;
+;                                             ;                ;
+; Total combinational functions               ; 1593           ;
+; Logic element usage by number of LUT inputs ;                ;
+;     -- 4 input functions                    ; 777            ;
+;     -- 3 input functions                    ; 287            ;
+;     -- <=2 input functions                  ; 529            ;
+;                                             ;                ;
+; Logic elements by mode                      ;                ;
+;     -- normal mode                          ; 1272           ;
+;     -- arithmetic mode                      ; 321            ;
+;                                             ;                ;
+; Total registers                             ; 602            ;
+;     -- Dedicated logic registers            ; 602            ;
+;     -- I/O registers                        ; 0              ;
+;                                             ;                ;
+; I/O pins                                    ; 118            ;
+; Embedded Multiplier 9-bit elements          ; 0              ;
+; Maximum fan-out node                        ; CLOCK_50~input ;
+; Maximum fan-out                             ; 602            ;
+; Total fan-out                               ; 7435           ;
+; Average fan-out                             ; 3.06           ;
++---------------------------------------------+----------------+
+
+
++--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Analysis & Synthesis Resource Utilization by Entity                                                                                                                                                                                                                      ;
++----------------------------------------+-------------------+--------------+-------------+--------------+---------+-----------+------+--------------+------------------------------------------------------------------------------------------------------+--------------+
+; Compilation Hierarchy Node             ; LC Combinationals ; LC Registers ; Memory Bits ; DSP Elements ; DSP 9x9 ; DSP 18x18 ; Pins ; Virtual Pins ; Full Hierarchy Name                                                                                  ; Library Name ;
++----------------------------------------+-------------------+--------------+-------------+--------------+---------+-----------+------+--------------+------------------------------------------------------------------------------------------------------+--------------+
+; |EP4                                   ; 1593 (1003)       ; 602 (510)    ; 0           ; 0            ; 0       ; 0         ; 118  ; 0            ; |EP4                                                                                                 ; work         ;
+;    |LCD:U3|                            ; 20 (20)           ; 15 (15)      ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |EP4|LCD:U3                                                                                          ; work         ;
+;    |RS232:U2|                          ; 121 (121)         ; 77 (77)      ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |EP4|RS232:U2                                                                                        ; work         ;
+;    |SSD_8:U1|                          ; 69 (69)           ; 0 (0)        ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |EP4|SSD_8:U1                                                                                        ; work         ;
+;    |lpm_divide:Div0|                   ; 93 (0)            ; 0 (0)        ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |EP4|lpm_divide:Div0                                                                                 ; work         ;
+;       |lpm_divide_uim:auto_generated|  ; 93 (0)            ; 0 (0)        ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |EP4|lpm_divide:Div0|lpm_divide_uim:auto_generated                                                   ; work         ;
+;          |sign_div_unsign_mlh:divider| ; 93 (0)            ; 0 (0)        ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |EP4|lpm_divide:Div0|lpm_divide_uim:auto_generated|sign_div_unsign_mlh:divider                       ; work         ;
+;             |alt_u_div_07f:divider|    ; 93 (93)           ; 0 (0)        ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |EP4|lpm_divide:Div0|lpm_divide_uim:auto_generated|sign_div_unsign_mlh:divider|alt_u_div_07f:divider ; work         ;
+;    |lpm_divide:Div1|                   ; 87 (0)            ; 0 (0)        ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |EP4|lpm_divide:Div1                                                                                 ; work         ;
+;       |lpm_divide_0jm:auto_generated|  ; 87 (0)            ; 0 (0)        ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |EP4|lpm_divide:Div1|lpm_divide_0jm:auto_generated                                                   ; work         ;
+;          |sign_div_unsign_olh:divider| ; 87 (0)            ; 0 (0)        ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |EP4|lpm_divide:Div1|lpm_divide_0jm:auto_generated|sign_div_unsign_olh:divider                       ; work         ;
+;             |alt_u_div_47f:divider|    ; 87 (87)           ; 0 (0)        ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |EP4|lpm_divide:Div1|lpm_divide_0jm:auto_generated|sign_div_unsign_olh:divider|alt_u_div_47f:divider ; work         ;
+;    |lpm_divide:Mod0|                   ; 200 (0)           ; 0 (0)        ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |EP4|lpm_divide:Mod0                                                                                 ; work         ;
+;       |lpm_divide_kcm:auto_generated|  ; 200 (0)           ; 0 (0)        ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |EP4|lpm_divide:Mod0|lpm_divide_kcm:auto_generated                                                   ; work         ;
+;          |sign_div_unsign_9nh:divider| ; 200 (0)           ; 0 (0)        ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |EP4|lpm_divide:Mod0|lpm_divide_kcm:auto_generated|sign_div_unsign_9nh:divider                       ; work         ;
+;             |alt_u_div_6af:divider|    ; 200 (200)         ; 0 (0)        ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |EP4|lpm_divide:Mod0|lpm_divide_kcm:auto_generated|sign_div_unsign_9nh:divider|alt_u_div_6af:divider ; work         ;
++----------------------------------------+-------------------+--------------+-------------+--------------+---------+-----------+------+--------------+------------------------------------------------------------------------------------------------------+--------------+
+Note: For table entries with two numbers listed, the numbers in parentheses indicate the number of resources of the given type used by the specific entity alone. The numbers listed outside of parentheses indicate the total resources of the given type used by the specific entity and all of its sub-entities in the hierarchy.
+
+
+Encoding Type:  One-Hot
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; State Machine - |EP4|\x5:ps                                                                                                                                                                                         ;
++-------------------+-------------------+-------------------+-------------------+------------------+----------------+----------------+--------------+---------------+---------------+-----------------+---------------+
+; Name              ; \x5:ps.s_forecast ; \x5:ps.s_aqi_pm10 ; \x5:ps.s_aqi_pm25 ; \x5:ps.s_aqi_val ; \x5:ps.s_aqi_i ; \x5:ps.s_aqi_q ; \x5:ps.s_wea ; \x5:ps.s_humi ; \x5:ps.s_temp ; \x5:ps.s_header ; \x5:ps.s_city ;
++-------------------+-------------------+-------------------+-------------------+------------------+----------------+----------------+--------------+---------------+---------------+-----------------+---------------+
+; \x5:ps.s_city     ; 0                 ; 0                 ; 0                 ; 0                ; 0              ; 0              ; 0            ; 0             ; 0             ; 0               ; 0             ;
+; \x5:ps.s_header   ; 0                 ; 0                 ; 0                 ; 0                ; 0              ; 0              ; 0            ; 0             ; 0             ; 1               ; 1             ;
+; \x5:ps.s_temp     ; 0                 ; 0                 ; 0                 ; 0                ; 0              ; 0              ; 0            ; 0             ; 1             ; 0               ; 1             ;
+; \x5:ps.s_humi     ; 0                 ; 0                 ; 0                 ; 0                ; 0              ; 0              ; 0            ; 1             ; 0             ; 0               ; 1             ;
+; \x5:ps.s_wea      ; 0                 ; 0                 ; 0                 ; 0                ; 0              ; 0              ; 1            ; 0             ; 0             ; 0               ; 1             ;
+; \x5:ps.s_aqi_q    ; 0                 ; 0                 ; 0                 ; 0                ; 0              ; 1              ; 0            ; 0             ; 0             ; 0               ; 1             ;
+; \x5:ps.s_aqi_i    ; 0                 ; 0                 ; 0                 ; 0                ; 1              ; 0              ; 0            ; 0             ; 0             ; 0               ; 1             ;
+; \x5:ps.s_aqi_val  ; 0                 ; 0                 ; 0                 ; 1                ; 0              ; 0              ; 0            ; 0             ; 0             ; 0               ; 1             ;
+; \x5:ps.s_aqi_pm25 ; 0                 ; 0                 ; 1                 ; 0                ; 0              ; 0              ; 0            ; 0             ; 0             ; 0               ; 1             ;
+; \x5:ps.s_aqi_pm10 ; 0                 ; 1                 ; 0                 ; 0                ; 0              ; 0              ; 0            ; 0             ; 0             ; 0               ; 1             ;
+; \x5:ps.s_forecast ; 1                 ; 0                 ; 0                 ; 0                ; 0              ; 0              ; 0            ; 0             ; 0             ; 0               ; 1             ;
++-------------------+-------------------+-------------------+-------------------+------------------+----------------+----------------+--------------+---------------+---------------+-----------------+---------------+
+
+
+Encoding Type:  One-Hot
++--------------------------------------------------------------------------------------------------+
+; State Machine - |EP4|RS232:U2|tx_state                                                           ;
++-------------------------+------------------------+-------------------------+---------------------+
+; Name                    ; tx_state.ST_TX_SEND_NL ; tx_state.ST_TX_SEND_VAL ; tx_state.ST_TX_IDLE ;
++-------------------------+------------------------+-------------------------+---------------------+
+; tx_state.ST_TX_IDLE     ; 0                      ; 0                       ; 0                   ;
+; tx_state.ST_TX_SEND_VAL ; 0                      ; 1                       ; 1                   ;
+; tx_state.ST_TX_SEND_NL  ; 1                      ; 0                       ; 1                   ;
++-------------------------+------------------------+-------------------------+---------------------+
+
+
++---------------------------------------------------------------------------------------------------+
+; User-Specified and Inferred Latches                                                               ;
++----------------------------------------------------+---------------------+------------------------+
+; Latch Name                                         ; Latch Enable Signal ; Free of Timing Hazards ;
++----------------------------------------------------+---------------------+------------------------+
+; \x4:lut_out[0]                                     ; Selector241         ; yes                    ;
+; \x4:lut_out[1]                                     ; Selector241         ; yes                    ;
+; \x4:lut_out[2]                                     ; Selector241         ; yes                    ;
+; \x4:lut_out[3]                                     ; Selector241         ; yes                    ;
+; \x4:lut_out[4]                                     ; Selector241         ; yes                    ;
+; \x4:lut_out[5]                                     ; Selector241         ; yes                    ;
+; \x4:lut_out[6]                                     ; Selector241         ; yes                    ;
+; \x4:lut_out[7]                                     ; Selector241         ; yes                    ;
+; \x4:lut_out[8]                                     ; Selector241         ; yes                    ;
+; Number of user-specified and inferred latches = 9  ;                     ;                        ;
++----------------------------------------------------+---------------------+------------------------+
+Note: All latches listed above may not be present at the end of synthesis due to various synthesis optimizations.
+
+
++---------------------------------------------------------------------------------+
+; Registers Removed During Synthesis                                              ;
++----------------------------------------+----------------------------------------+
+; Register name                          ; Reason for Removal                     ;
++----------------------------------------+----------------------------------------+
+; SSD_data[30,32,33]                     ; Stuck at VCC due to stuck port data_in ;
+; SSD_flash[0..5]                        ; Stuck at GND due to stuck port data_in ;
+; SSD_data[27]                           ; Merged with SSD_data[28]               ;
+; SSD_data[28]                           ; Merged with SSD_data[29]               ;
+; SSD_data[29]                           ; Merged with SSD_data[31]               ;
+; SSD_data[31]                           ; Merged with SSD_data[34]               ;
+; SSD_data[34]                           ; Merged with SSD_data[35]               ;
+; SSD_data[38..42,45]                    ; Merged with SSD_data[47]               ;
+; SSD_data[43,44]                        ; Merged with SSD_data[46]               ;
+; SSD_flash[6]                           ; Merged with SSD_flash[7]               ;
+; SSD_data[4,5,11,16,17,22,23]           ; Merged with SSD_data[10]               ;
+; RS232:U2|tx_data[5]                    ; Merged with RS232:U2|tx_data[4]        ;
+; RS232:U2|tx_reg[5]                     ; Merged with RS232:U2|tx_reg[4]         ;
+; SSD_data[46]                           ; Stuck at VCC due to stuck port data_in ;
+; RS232:U2|tx_data[7]                    ; Stuck at GND due to stuck port data_in ;
+; RS232:U2|tx_reg[7]                     ; Stuck at GND due to stuck port data_in ;
+; \x4:lcd_refresh_cnt[1]                 ; Stuck at GND due to stuck port data_in ;
+; SSD_data[47]                           ; Merged with SSD_data[10]               ;
+; \x5:ps.s_aqi_q                         ; Merged with \x5:ps.s_aqi_i             ;
+; \x5:ps.s_aqi_i                         ; Stuck at GND due to stuck port data_in ;
+; Total Number of Removed Registers = 39 ;                                        ;
++----------------------------------------+----------------------------------------+
+
+
++------------------------------------------------------------------------------------------+
+; Removed Registers Triggering Further Register Optimizations                              ;
++---------------------+---------------------------+----------------------------------------+
+; Register name       ; Reason for Removal        ; Registers Removed due to This Register ;
++---------------------+---------------------------+----------------------------------------+
+; RS232:U2|tx_data[7] ; Stuck at GND              ; RS232:U2|tx_reg[7]                     ;
+;                     ; due to stuck port data_in ;                                        ;
++---------------------+---------------------------+----------------------------------------+
+
+
++------------------------------------------------------+
+; General Register Statistics                          ;
++----------------------------------------------+-------+
+; Statistic                                    ; Value ;
++----------------------------------------------+-------+
+; Total registers                              ; 602   ;
+; Number of registers using Synchronous Clear  ; 151   ;
+; Number of registers using Synchronous Load   ; 0     ;
+; Number of registers using Asynchronous Clear ; 488   ;
+; Number of registers using Asynchronous Load  ; 0     ;
+; Number of registers using Clock Enable       ; 481   ;
+; Number of registers using Preset             ; 0     ;
++----------------------------------------------+-------+
+
+
++---------------------------------------------------+
+; Inverted Register Statistics                      ;
++-----------------------------------------+---------+
+; Inverted Register                       ; Fan out ;
++-----------------------------------------+---------+
+; RS232:U2|uart_tx                        ; 2       ;
+; SSD_data[0]                             ; 7       ;
+; SSD_data[1]                             ; 7       ;
+; SSD_data[2]                             ; 7       ;
+; SSD_data[3]                             ; 7       ;
+; SSD_data[10]                            ; 31      ;
+; SSD_data[6]                             ; 7       ;
+; SSD_data[7]                             ; 7       ;
+; SSD_data[8]                             ; 7       ;
+; SSD_data[9]                             ; 7       ;
+; SSD_data[12]                            ; 7       ;
+; SSD_data[13]                            ; 7       ;
+; SSD_data[14]                            ; 7       ;
+; SSD_data[15]                            ; 7       ;
+; SSD_data[18]                            ; 7       ;
+; SSD_data[19]                            ; 7       ;
+; SSD_data[20]                            ; 7       ;
+; SSD_data[21]                            ; 7       ;
+; SSD_data[24]                            ; 7       ;
+; SSD_data[25]                            ; 7       ;
+; SSD_data[26]                            ; 7       ;
+; SSD_data[35]                            ; 12      ;
+; SSD_data[37]                            ; 4       ;
+; SSD_data[36]                            ; 4       ;
+; hum[4]                                  ; 1       ;
+; hum[0]                                  ; 1       ;
+; temp[8]                                 ; 6       ;
+; temp[4]                                 ; 3       ;
+; temp[11]                                ; 6       ;
+; temp[9]                                 ; 5       ;
+; temp[10]                                ; 6       ;
+; temp[7]                                 ; 2       ;
+; temp[6]                                 ; 2       ;
+; temp[5]                                 ; 2       ;
+; hum[5]                                  ; 1       ;
+; hum[1]                                  ; 1       ;
+; hum[2]                                  ; 2       ;
+; hum[6]                                  ; 2       ;
+; hum[7]                                  ; 1       ;
+; hum[3]                                  ; 1       ;
+; RS232:U2|key_reg                        ; 1       ;
+; RS232:U2|rx_d0                          ; 11      ;
+; \x2:key2_dly                            ; 1       ;
+; Total number of inverted registers = 43 ;         ;
++-----------------------------------------+---------+
+
+
++---------------------------------------------------------------------------------------------------------------------------------------------------+
+; Multiplexer Restructuring Statistics (Restructuring Performed)                                                                                    ;
++--------------------+-----------+---------------+----------------------+------------------------+------------+-------------------------------------+
+; Multiplexer Inputs ; Bus Width ; Baseline Area ; Area if Restructured ; Saving if Restructured ; Registered ; Example Multiplexer Output          ;
++--------------------+-----------+---------------+----------------------+------------------------+------------+-------------------------------------+
+; 3:1                ; 4 bits    ; 8 LEs         ; 0 LEs                ; 8 LEs                  ; Yes        ; |EP4|f_max_temp[0][3]               ;
+; 3:1                ; 4 bits    ; 8 LEs         ; 0 LEs                ; 8 LEs                  ; Yes        ; |EP4|f_max_temp[0][4]               ;
+; 3:1                ; 8 bits    ; 16 LEs        ; 0 LEs                ; 16 LEs                 ; Yes        ; |EP4|f_max_temp[0][10]              ;
+; 3:1                ; 4 bits    ; 8 LEs         ; 0 LEs                ; 8 LEs                  ; Yes        ; |EP4|f_max_temp[4][2]               ;
+; 3:1                ; 4 bits    ; 8 LEs         ; 0 LEs                ; 8 LEs                  ; Yes        ; |EP4|f_max_temp[4][7]               ;
+; 3:1                ; 4 bits    ; 8 LEs         ; 0 LEs                ; 8 LEs                  ; Yes        ; |EP4|f_max_temp[4][10]              ;
+; 3:1                ; 4 bits    ; 8 LEs         ; 0 LEs                ; 8 LEs                  ; Yes        ; |EP4|f_max_temp[3][3]               ;
+; 3:1                ; 4 bits    ; 8 LEs         ; 0 LEs                ; 8 LEs                  ; Yes        ; |EP4|f_max_temp[3][5]               ;
+; 3:1                ; 4 bits    ; 8 LEs         ; 0 LEs                ; 8 LEs                  ; Yes        ; |EP4|f_max_temp[3][10]              ;
+; 3:1                ; 4 bits    ; 8 LEs         ; 0 LEs                ; 8 LEs                  ; Yes        ; |EP4|f_max_temp[2][1]               ;
+; 3:1                ; 4 bits    ; 8 LEs         ; 0 LEs                ; 8 LEs                  ; Yes        ; |EP4|f_max_temp[2][5]               ;
+; 3:1                ; 4 bits    ; 8 LEs         ; 0 LEs                ; 8 LEs                  ; Yes        ; |EP4|f_max_temp[2][10]              ;
+; 3:1                ; 4 bits    ; 8 LEs         ; 0 LEs                ; 8 LEs                  ; Yes        ; |EP4|f_max_temp[1][1]               ;
+; 3:1                ; 4 bits    ; 8 LEs         ; 0 LEs                ; 8 LEs                  ; Yes        ; |EP4|f_max_temp[1][5]               ;
+; 3:1                ; 4 bits    ; 8 LEs         ; 0 LEs                ; 8 LEs                  ; Yes        ; |EP4|f_max_temp[1][10]              ;
+; 3:1                ; 13 bits   ; 26 LEs        ; 13 LEs               ; 13 LEs                 ; Yes        ; |EP4|RS232:U2|\process_3:clk_cnt[4] ;
+; 3:1                ; 26 bits   ; 52 LEs        ; 26 LEs               ; 26 LEs                 ; Yes        ; |EP4|\x1:cnt1[9]                    ;
+; 3:1                ; 18 bits   ; 36 LEs        ; 18 LEs               ; 18 LEs                 ; Yes        ; |EP4|\x4:mDLY[15]                   ;
+; 3:1                ; 26 bits   ; 52 LEs        ; 26 LEs               ; 26 LEs                 ; Yes        ; |EP4|\x1:cnt3[8]                    ;
+; 5:1                ; 9 bits    ; 27 LEs        ; 0 LEs                ; 27 LEs                 ; Yes        ; |EP4|mLCD_RS                        ;
+; 4:1                ; 13 bits   ; 26 LEs        ; 13 LEs               ; 13 LEs                 ; Yes        ; |EP4|RS232:U2|clk_cnt[1]            ;
+; 5:1                ; 3 bits    ; 9 LEs         ; 3 LEs                ; 6 LEs                  ; Yes        ; |EP4|\x5:field_cnt[0]               ;
+; 6:1                ; 4 bits    ; 16 LEs        ; 4 LEs                ; 12 LEs                 ; Yes        ; |EP4|RS232:U2|bit_cnt[0]            ;
+; 32:1               ; 3 bits    ; 63 LEs        ; 9 LEs                ; 54 LEs                 ; Yes        ; |EP4|mode_day[0]                    ;
+; 6:1                ; 2 bits    ; 8 LEs         ; 4 LEs                ; 4 LEs                  ; Yes        ; |EP4|LCD:U3|ST[1]                   ;
+; 6:1                ; 8 bits    ; 32 LEs        ; 8 LEs                ; 24 LEs                 ; Yes        ; |EP4|LCD:U3|Cont[4]                 ;
+; 8:1                ; 2 bits    ; 10 LEs        ; 6 LEs                ; 4 LEs                  ; Yes        ; |EP4|\x4:mLCD_ST[1]                 ;
+; 6:1                ; 2 bits    ; 8 LEs         ; 4 LEs                ; 4 LEs                  ; Yes        ; |EP4|RS232:U2|tx_data[4]            ;
+; 6:1                ; 4 bits    ; 16 LEs        ; 8 LEs                ; 8 LEs                  ; Yes        ; |EP4|RS232:U2|tx_data[1]            ;
+; 7:1                ; 4 bits    ; 16 LEs        ; 4 LEs                ; 12 LEs                 ; Yes        ; |EP4|RS232:U2|\process_3:bit_cnt[1] ;
+; 9:1                ; 6 bits    ; 36 LEs        ; 6 LEs                ; 30 LEs                 ; Yes        ; |EP4|\x4:LUT_INDEX[4]               ;
+; 10:1               ; 2 bits    ; 12 LEs        ; 2 LEs                ; 10 LEs                 ; Yes        ; |EP4|mode_unit[0]                   ;
+; 8:1                ; 8 bits    ; 40 LEs        ; 8 LEs                ; 32 LEs                 ; Yes        ; |EP4|city[104]                      ;
+; 8:1                ; 8 bits    ; 40 LEs        ; 8 LEs                ; 32 LEs                 ; Yes        ; |EP4|weather[107]                   ;
+; 8:1                ; 4 bits    ; 20 LEs        ; 4 LEs                ; 16 LEs                 ; Yes        ; |EP4|pm25[0]                        ;
+; 8:1                ; 4 bits    ; 20 LEs        ; 4 LEs                ; 16 LEs                 ; Yes        ; |EP4|pm10[0]                        ;
+; 8:1                ; 8 bits    ; 40 LEs        ; 8 LEs                ; 32 LEs                 ; Yes        ; |EP4|city[119]                      ;
+; 8:1                ; 8 bits    ; 40 LEs        ; 8 LEs                ; 32 LEs                 ; Yes        ; |EP4|weather[114]                   ;
+; 8:1                ; 4 bits    ; 20 LEs        ; 4 LEs                ; 16 LEs                 ; Yes        ; |EP4|pm25[7]                        ;
+; 8:1                ; 4 bits    ; 20 LEs        ; 4 LEs                ; 16 LEs                 ; Yes        ; |EP4|pm10[7]                        ;
+; 8:1                ; 8 bits    ; 40 LEs        ; 8 LEs                ; 32 LEs                 ; Yes        ; |EP4|city[126]                      ;
+; 8:1                ; 8 bits    ; 40 LEs        ; 8 LEs                ; 32 LEs                 ; Yes        ; |EP4|weather[123]                   ;
+; 8:1                ; 4 bits    ; 20 LEs        ; 4 LEs                ; 16 LEs                 ; Yes        ; |EP4|pm25[8]                        ;
+; 8:1                ; 4 bits    ; 20 LEs        ; 4 LEs                ; 16 LEs                 ; Yes        ; |EP4|pm10[11]                       ;
+; 8:1                ; 8 bits    ; 40 LEs        ; 8 LEs                ; 32 LEs                 ; Yes        ; |EP4|city[96]                       ;
+; 8:1                ; 8 bits    ; 40 LEs        ; 8 LEs                ; 32 LEs                 ; Yes        ; |EP4|weather[96]                    ;
+; 8:1                ; 8 bits    ; 40 LEs        ; 8 LEs                ; 32 LEs                 ; Yes        ; |EP4|city[95]                       ;
+; 8:1                ; 8 bits    ; 40 LEs        ; 8 LEs                ; 32 LEs                 ; Yes        ; |EP4|weather[89]                    ;
+; 8:1                ; 8 bits    ; 40 LEs        ; 8 LEs                ; 32 LEs                 ; Yes        ; |EP4|city[80]                       ;
+; 8:1                ; 8 bits    ; 40 LEs        ; 8 LEs                ; 32 LEs                 ; Yes        ; |EP4|weather[81]                    ;
+; 8:1                ; 8 bits    ; 40 LEs        ; 8 LEs                ; 32 LEs                 ; Yes        ; |EP4|city[73]                       ;
+; 8:1                ; 8 bits    ; 40 LEs        ; 8 LEs                ; 32 LEs                 ; Yes        ; |EP4|weather[73]                    ;
+; 8:1                ; 8 bits    ; 40 LEs        ; 8 LEs                ; 32 LEs                 ; Yes        ; |EP4|city[70]                       ;
+; 8:1                ; 8 bits    ; 40 LEs        ; 8 LEs                ; 32 LEs                 ; Yes        ; |EP4|weather[65]                    ;
+; 8:1                ; 8 bits    ; 40 LEs        ; 8 LEs                ; 32 LEs                 ; Yes        ; |EP4|city[62]                       ;
+; 8:1                ; 8 bits    ; 40 LEs        ; 8 LEs                ; 32 LEs                 ; Yes        ; |EP4|weather[60]                    ;
+; 8:1                ; 8 bits    ; 40 LEs        ; 8 LEs                ; 32 LEs                 ; Yes        ; |EP4|city[48]                       ;
+; 8:1                ; 8 bits    ; 40 LEs        ; 8 LEs                ; 32 LEs                 ; Yes        ; |EP4|city[45]                       ;
+; 8:1                ; 8 bits    ; 40 LEs        ; 8 LEs                ; 32 LEs                 ; Yes        ; |EP4|city[34]                       ;
+; 8:1                ; 8 bits    ; 40 LEs        ; 8 LEs                ; 32 LEs                 ; Yes        ; |EP4|city[29]                       ;
+; 8:1                ; 8 bits    ; 40 LEs        ; 8 LEs                ; 32 LEs                 ; Yes        ; |EP4|city[17]                       ;
+; 8:1                ; 8 bits    ; 40 LEs        ; 8 LEs                ; 32 LEs                 ; Yes        ; |EP4|city[12]                       ;
+; 8:1                ; 8 bits    ; 40 LEs        ; 8 LEs                ; 32 LEs                 ; Yes        ; |EP4|city[0]                        ;
+; 5:1                ; 12 bits   ; 36 LEs        ; 36 LEs               ; 0 LEs                  ; Yes        ; |EP4|SSD_data[12]                   ;
+; 5:1                ; 2 bits    ; 6 LEs         ; 4 LEs                ; 2 LEs                  ; Yes        ; |EP4|SSD_data[36]                   ;
+; 3:1                ; 3 bits    ; 6 LEs         ; 3 LEs                ; 3 LEs                  ; No         ; |EP4|\x4:scroll_index[0]            ;
+; 4:1                ; 3 bits    ; 6 LEs         ; 6 LEs                ; 0 LEs                  ; No         ; |EP4|\x4:scroll_index[5]            ;
+; 6:1                ; 3 bits    ; 12 LEs        ; 6 LEs                ; 6 LEs                  ; No         ; |EP4|RS232:U2|Selector10            ;
+; 12:1               ; 3 bits    ; 24 LEs        ; 6 LEs                ; 18 LEs                 ; No         ; |EP4|ps                             ;
+; 13:1               ; 2 bits    ; 16 LEs        ; 6 LEs                ; 10 LEs                 ; No         ; |EP4|ps                             ;
++--------------------+-----------+---------------+----------------------+------------------------+------------+-------------------------------------+
+
+
++---------------------------------------------------------------------+
+; Parameter Settings for User Entity Instance: Top-level Entity: |EP4 ;
++----------------+----------+-----------------------------------------+
+; Parameter Name ; Value    ; Type                                    ;
++----------------+----------+-----------------------------------------+
+; fmax           ; 50000000 ; Signed Integer                          ;
+; BAUD_RATE      ; 9600     ; Signed Integer                          ;
++----------------+----------+-----------------------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++-------------------------------------------------------+
+; Parameter Settings for User Entity Instance: SSD_8:U1 ;
++----------------+----------+---------------------------+
+; Parameter Name ; Value    ; Type                      ;
++----------------+----------+---------------------------+
+; fmax           ; 50000000 ; Signed Integer            ;
++----------------+----------+---------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++-------------------------------------------------------+
+; Parameter Settings for User Entity Instance: RS232:U2 ;
++----------------+----------+---------------------------+
+; Parameter Name ; Value    ; Type                      ;
++----------------+----------+---------------------------+
+; clk_freq       ; 50000000 ; Signed Integer            ;
+; baud_rate      ; 9600     ; Signed Integer            ;
++----------------+----------+---------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++-----------------------------------------------------+
+; Parameter Settings for User Entity Instance: LCD:U3 ;
++----------------+-------+----------------------------+
+; Parameter Name ; Value ; Type                       ;
++----------------+-------+----------------------------+
+; CLK_Divide     ; 16    ; Signed Integer             ;
++----------------+-------+----------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++------------------------------------------------------------------+
+; Parameter Settings for Inferred Entity Instance: lpm_divide:Div0 ;
++------------------------+----------------+------------------------+
+; Parameter Name         ; Value          ; Type                   ;
++------------------------+----------------+------------------------+
+; LPM_WIDTHN             ; 13             ; Untyped                ;
+; LPM_WIDTHD             ; 3              ; Untyped                ;
+; LPM_NREPRESENTATION    ; UNSIGNED       ; Untyped                ;
+; LPM_DREPRESENTATION    ; UNSIGNED       ; Untyped                ;
+; LPM_PIPELINE           ; 0              ; Untyped                ;
+; LPM_REMAINDERPOSITIVE  ; TRUE           ; Untyped                ;
+; MAXIMIZE_SPEED         ; 5              ; Untyped                ;
+; CBXI_PARAMETER         ; lpm_divide_uim ; Untyped                ;
+; CARRY_CHAIN            ; MANUAL         ; Untyped                ;
+; OPTIMIZE_FOR_SPEED     ; 5              ; Untyped                ;
+; AUTO_CARRY_CHAINS      ; ON             ; AUTO_CARRY             ;
+; IGNORE_CARRY_BUFFERS   ; OFF            ; IGNORE_CARRY           ;
+; AUTO_CASCADE_CHAINS    ; ON             ; AUTO_CASCADE           ;
+; IGNORE_CASCADE_BUFFERS ; OFF            ; IGNORE_CASCADE         ;
++------------------------+----------------+------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++------------------------------------------------------------------+
+; Parameter Settings for Inferred Entity Instance: lpm_divide:Div1 ;
++------------------------+----------------+------------------------+
+; Parameter Name         ; Value          ; Type                   ;
++------------------------+----------------+------------------------+
+; LPM_WIDTHN             ; 14             ; Untyped                ;
+; LPM_WIDTHD             ; 4              ; Untyped                ;
+; LPM_NREPRESENTATION    ; UNSIGNED       ; Untyped                ;
+; LPM_DREPRESENTATION    ; UNSIGNED       ; Untyped                ;
+; LPM_PIPELINE           ; 0              ; Untyped                ;
+; LPM_REMAINDERPOSITIVE  ; TRUE           ; Untyped                ;
+; MAXIMIZE_SPEED         ; 5              ; Untyped                ;
+; CBXI_PARAMETER         ; lpm_divide_0jm ; Untyped                ;
+; CARRY_CHAIN            ; MANUAL         ; Untyped                ;
+; OPTIMIZE_FOR_SPEED     ; 5              ; Untyped                ;
+; AUTO_CARRY_CHAINS      ; ON             ; AUTO_CARRY             ;
+; IGNORE_CARRY_BUFFERS   ; OFF            ; IGNORE_CARRY           ;
+; AUTO_CASCADE_CHAINS    ; ON             ; AUTO_CASCADE           ;
+; IGNORE_CASCADE_BUFFERS ; OFF            ; IGNORE_CASCADE         ;
++------------------------+----------------+------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++------------------------------------------------------------------+
+; Parameter Settings for Inferred Entity Instance: lpm_divide:Mod0 ;
++------------------------+----------------+------------------------+
+; Parameter Name         ; Value          ; Type                   ;
++------------------------+----------------+------------------------+
+; LPM_WIDTHN             ; 14             ; Untyped                ;
+; LPM_WIDTHD             ; 14             ; Untyped                ;
+; LPM_NREPRESENTATION    ; UNSIGNED       ; Untyped                ;
+; LPM_DREPRESENTATION    ; UNSIGNED       ; Untyped                ;
+; LPM_PIPELINE           ; 0              ; Untyped                ;
+; LPM_REMAINDERPOSITIVE  ; TRUE           ; Untyped                ;
+; MAXIMIZE_SPEED         ; 5              ; Untyped                ;
+; CBXI_PARAMETER         ; lpm_divide_kcm ; Untyped                ;
+; CARRY_CHAIN            ; MANUAL         ; Untyped                ;
+; OPTIMIZE_FOR_SPEED     ; 5              ; Untyped                ;
+; AUTO_CARRY_CHAINS      ; ON             ; AUTO_CARRY             ;
+; IGNORE_CARRY_BUFFERS   ; OFF            ; IGNORE_CARRY           ;
+; AUTO_CASCADE_CHAINS    ; ON             ; AUTO_CASCADE           ;
+; IGNORE_CASCADE_BUFFERS ; OFF            ; IGNORE_CASCADE         ;
++------------------------+----------------+------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "SSD_8:U1"                                                                                                                                   ;
++------+-------+----------+----------------------------------------------------------------------------------------------------------------------------------------------+
+; Port ; Type  ; Severity ; Details                                                                                                                                      ;
++------+-------+----------+----------------------------------------------------------------------------------------------------------------------------------------------+
+; dot  ; Input ; Warning  ; Declared by entity but not connected by instance. If a default value exists, it will be used.  Otherwise, the port will be connected to GND. ;
++------+-------+----------+----------------------------------------------------------------------------------------------------------------------------------------------+
+
+
++-------------------------------+
+; Elapsed Time Per Partition    ;
++----------------+--------------+
+; Partition Name ; Elapsed Time ;
++----------------+--------------+
+; Top            ; 00:00:04     ;
++----------------+--------------+
+
+
++-------------------------------+
+; Analysis & Synthesis Messages ;
++-------------------------------+
+Info: *******************************************************************
+Info: Running Quartus II 64-Bit Analysis & Synthesis
+    Info: Version 13.0.1 Build 232 06/12/2013 Service Pack 1 SJ Web Edition
+    Info: Processing started: Fri Jun 12 00:27:22 2026
+Info: Command: quartus_map --read_settings_files=on --write_settings_files=off EP4 -c EP4
+Warning (20028): Parallel compilation is not licensed and has been disabled
+Info (12021): Found 2 design units, including 1 entities, in source file ep4.vhd
+    Info (12022): Found design unit 1: EP4-beh
+    Info (12023): Found entity 1: EP4
+Info (12021): Found 2 design units, including 1 entities, in source file ssd_8.vhd
+    Info (12022): Found design unit 1: SSD_8-beh
+    Info (12023): Found entity 1: SSD_8
+Info (12021): Found 2 design units, including 1 entities, in source file bintobcd_8.vhd
+    Info (12022): Found design unit 1: bintobcd_8-beh
+    Info (12023): Found entity 1: bintobcd_8
+Info (12021): Found 2 design units, including 1 entities, in source file bintobcd_4.vhd
+    Info (12022): Found design unit 1: bintobcd_4-beh
+    Info (12023): Found entity 1: bintobcd_4
+Info (12021): Found 2 design units, including 1 entities, in source file lcd.vhd
+    Info (12022): Found design unit 1: LCD-Behavioral
+    Info (12023): Found entity 1: LCD
+Info (12021): Found 2 design units, including 1 entities, in source file rs232.vhd
+    Info (12022): Found design unit 1: RS232-rtl
+    Info (12023): Found entity 1: RS232
+Info (12021): Found 2 design units, including 1 entities, in source file eeprom.vhd
+    Info (12022): Found design unit 1: eeprom-arch
+    Info (12023): Found entity 1: eeprom
+Info (12127): Elaborating entity "EP4" for the top level hierarchy
+Warning (10541): VHDL Signal Declaration warning at EP4.vhd(25): used implicit default value for signal "LEDG" because signal was never assigned a value or an explicit default value. Use of implicit default value may introduce unintended design optimizations.
+Warning (10036): Verilog HDL or VHDL warning at EP4.vhd(104): object "f_1p" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at EP4.vhd(105): object "f_2s" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at EP4.vhd(105): object "f_2p" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at EP4.vhd(106): object "f_10s" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at EP4.vhd(107): object "f_1kp" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at EP4.vhd(131): object "aqi" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at EP4.vhd(141): object "f_min_temp" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at EP4.vhd(142): object "f_hum" assigned a value but never read
+Warning (10036): Verilog HDL or VHDL warning at EP4.vhd(143): object "f_pop" assigned a value but never read
+Warning (10492): VHDL Process Statement warning at EP4.vhd(483): signal "is_booted" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(501): signal "mode_change" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(502): signal "reg_mode" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(553): signal "mode" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(555): signal "scroll_index" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(589): signal "city" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(590): signal "city" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(591): signal "city" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(592): signal "city" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(593): signal "city" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(594): signal "city" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(595): signal "city" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(596): signal "city" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(597): signal "city" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(598): signal "city" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(599): signal "city" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(600): signal "city" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(601): signal "city" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(602): signal "city" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(603): signal "city" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(604): signal "city" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(616): signal "is_booted" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(628): signal "mode_change" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(629): signal "mode" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(631): signal "mode_unit" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(639): signal "temp" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(640): signal "temp" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(645): signal "hum" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(646): signal "hum" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(655): signal "temp" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(668): signal "hum" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(669): signal "hum" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(686): signal "weather" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(687): signal "weather" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(688): signal "weather" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(689): signal "weather" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(690): signal "weather" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(691): signal "weather" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(692): signal "weather" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(693): signal "weather" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(694): signal "weather" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(700): signal "mode_unit" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(709): signal "pm25" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(710): signal "pm25" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(712): signal "pm25" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(722): signal "pm10" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(723): signal "pm10" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(725): signal "pm10" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10492): VHDL Process Statement warning at EP4.vhd(735): signal "reg_mode" is read inside the Process Statement but isn't in the Process Statement's sensitivity list
+Warning (10631): VHDL Process Statement warning at EP4.vhd(461): inferring latch(es) for signal or variable "lut_out", which holds its previous value in one or more paths through the process
+Warning (10873): Using initial value X (don't care) for net "LEDR[17..5]" at EP4.vhd(24)
+Info (10041): Inferred latch for "x4:lut_out[0]" at EP4.vhd(461)
+Info (10041): Inferred latch for "x4:lut_out[1]" at EP4.vhd(461)
+Info (10041): Inferred latch for "x4:lut_out[2]" at EP4.vhd(461)
+Info (10041): Inferred latch for "x4:lut_out[3]" at EP4.vhd(461)
+Info (10041): Inferred latch for "x4:lut_out[4]" at EP4.vhd(461)
+Info (10041): Inferred latch for "x4:lut_out[5]" at EP4.vhd(461)
+Info (10041): Inferred latch for "x4:lut_out[6]" at EP4.vhd(461)
+Info (10041): Inferred latch for "x4:lut_out[7]" at EP4.vhd(461)
+Info (10041): Inferred latch for "x4:lut_out[8]" at EP4.vhd(461)
+Info (12128): Elaborating entity "SSD_8" for hierarchy "SSD_8:U1"
+Info (12128): Elaborating entity "RS232" for hierarchy "RS232:U2"
+Info (12128): Elaborating entity "LCD" for hierarchy "LCD:U3"
+Info (278001): Inferred 3 megafunctions from design logic
+    Info (278004): Inferred divider/modulo megafunction ("lpm_divide") from the following logic: "Div0"
+    Info (278004): Inferred divider/modulo megafunction ("lpm_divide") from the following logic: "Div1"
+    Info (278004): Inferred divider/modulo megafunction ("lpm_divide") from the following logic: "Mod0"
+Info (12130): Elaborated megafunction instantiation "lpm_divide:Div0"
+Info (12133): Instantiated megafunction "lpm_divide:Div0" with the following parameter:
+    Info (12134): Parameter "LPM_WIDTHN" = "13"
+    Info (12134): Parameter "LPM_WIDTHD" = "3"
+    Info (12134): Parameter "LPM_NREPRESENTATION" = "UNSIGNED"
+    Info (12134): Parameter "LPM_DREPRESENTATION" = "UNSIGNED"
+Info (12021): Found 1 design units, including 1 entities, in source file db/lpm_divide_uim.tdf
+    Info (12023): Found entity 1: lpm_divide_uim
+Info (12021): Found 1 design units, including 1 entities, in source file db/sign_div_unsign_mlh.tdf
+    Info (12023): Found entity 1: sign_div_unsign_mlh
+Info (12021): Found 1 design units, including 1 entities, in source file db/alt_u_div_07f.tdf
+    Info (12023): Found entity 1: alt_u_div_07f
+Info (12021): Found 1 design units, including 1 entities, in source file db/add_sub_7pc.tdf
+    Info (12023): Found entity 1: add_sub_7pc
+Info (12021): Found 1 design units, including 1 entities, in source file db/add_sub_8pc.tdf
+    Info (12023): Found entity 1: add_sub_8pc
+Info (12130): Elaborated megafunction instantiation "lpm_divide:Div1"
+Info (12133): Instantiated megafunction "lpm_divide:Div1" with the following parameter:
+    Info (12134): Parameter "LPM_WIDTHN" = "14"
+    Info (12134): Parameter "LPM_WIDTHD" = "4"
+    Info (12134): Parameter "LPM_NREPRESENTATION" = "UNSIGNED"
+    Info (12134): Parameter "LPM_DREPRESENTATION" = "UNSIGNED"
+Info (12021): Found 1 design units, including 1 entities, in source file db/lpm_divide_0jm.tdf
+    Info (12023): Found entity 1: lpm_divide_0jm
+Info (12021): Found 1 design units, including 1 entities, in source file db/sign_div_unsign_olh.tdf
+    Info (12023): Found entity 1: sign_div_unsign_olh
+Info (12021): Found 1 design units, including 1 entities, in source file db/alt_u_div_47f.tdf
+    Info (12023): Found entity 1: alt_u_div_47f
+Info (12130): Elaborated megafunction instantiation "lpm_divide:Mod0"
+Info (12133): Instantiated megafunction "lpm_divide:Mod0" with the following parameter:
+    Info (12134): Parameter "LPM_WIDTHN" = "14"
+    Info (12134): Parameter "LPM_WIDTHD" = "14"
+    Info (12134): Parameter "LPM_NREPRESENTATION" = "UNSIGNED"
+    Info (12134): Parameter "LPM_DREPRESENTATION" = "UNSIGNED"
+Info (12021): Found 1 design units, including 1 entities, in source file db/lpm_divide_kcm.tdf
+    Info (12023): Found entity 1: lpm_divide_kcm
+Info (12021): Found 1 design units, including 1 entities, in source file db/sign_div_unsign_9nh.tdf
+    Info (12023): Found entity 1: sign_div_unsign_9nh
+Info (12021): Found 1 design units, including 1 entities, in source file db/alt_u_div_6af.tdf
+    Info (12023): Found entity 1: alt_u_div_6af
+Warning (12241): 1 hierarchies have connectivity warnings - see the Connectivity Checks report folder
+Warning (13012): Latch \x4:lut_out[0] has unsafe behavior
+    Warning (13013): Ports D and ENA on the latch are fed by the same signal \x4:LUT_INDEX[5]
+Warning (13012): Latch \x4:lut_out[1] has unsafe behavior
+    Warning (13013): Ports D and ENA on the latch are fed by the same signal \x4:LUT_INDEX[5]
+Warning (13012): Latch \x4:lut_out[2] has unsafe behavior
+    Warning (13013): Ports D and ENA on the latch are fed by the same signal \x4:LUT_INDEX[5]
+Warning (13012): Latch \x4:lut_out[3] has unsafe behavior
+    Warning (13013): Ports D and ENA on the latch are fed by the same signal \x4:LUT_INDEX[5]
+Warning (13012): Latch \x4:lut_out[4] has unsafe behavior
+    Warning (13013): Ports D and ENA on the latch are fed by the same signal \x4:LUT_INDEX[5]
+Warning (13012): Latch \x4:lut_out[5] has unsafe behavior
+    Warning (13013): Ports D and ENA on the latch are fed by the same signal \x4:LUT_INDEX[5]
+Warning (13012): Latch \x4:lut_out[6] has unsafe behavior
+    Warning (13013): Ports D and ENA on the latch are fed by the same signal \x4:LUT_INDEX[5]
+Warning (13012): Latch \x4:lut_out[7] has unsafe behavior
+    Warning (13013): Ports D and ENA on the latch are fed by the same signal \x4:LUT_INDEX[5]
+Warning (13012): Latch \x4:lut_out[8] has unsafe behavior
+    Warning (13013): Ports D and ENA on the latch are fed by the same signal \x4:LUT_INDEX[5]
+Info (13000): Registers with preset signals will power-up high
+Info (13003): DEV_CLRn pin will set, and not reset, register with preset signal due to NOT Gate Push-Back
+Warning (13024): Output pins are stuck at VCC or GND
+    Warning (13410): Pin "LEDR[0]" is stuck at VCC
+    Warning (13410): Pin "LEDR[5]" is stuck at GND
+    Warning (13410): Pin "LEDR[6]" is stuck at GND
+    Warning (13410): Pin "LEDR[7]" is stuck at GND
+    Warning (13410): Pin "LEDR[8]" is stuck at GND
+    Warning (13410): Pin "LEDR[9]" is stuck at GND
+    Warning (13410): Pin "LEDR[10]" is stuck at GND
+    Warning (13410): Pin "LEDR[11]" is stuck at GND
+    Warning (13410): Pin "LEDR[12]" is stuck at GND
+    Warning (13410): Pin "LEDR[13]" is stuck at GND
+    Warning (13410): Pin "LEDR[14]" is stuck at GND
+    Warning (13410): Pin "LEDR[15]" is stuck at GND
+    Warning (13410): Pin "LEDR[16]" is stuck at GND
+    Warning (13410): Pin "LEDR[17]" is stuck at GND
+    Warning (13410): Pin "LEDG[0]" is stuck at GND
+    Warning (13410): Pin "LEDG[1]" is stuck at GND
+    Warning (13410): Pin "LEDG[2]" is stuck at GND
+    Warning (13410): Pin "LEDG[3]" is stuck at GND
+    Warning (13410): Pin "LEDG[4]" is stuck at GND
+    Warning (13410): Pin "LEDG[5]" is stuck at GND
+    Warning (13410): Pin "LEDG[6]" is stuck at GND
+    Warning (13410): Pin "LEDG[7]" is stuck at GND
+    Warning (13410): Pin "HEX5[0]" is stuck at VCC
+    Warning (13410): Pin "HEX5[5]" is stuck at VCC
+    Warning (13410): Pin "HEX7[1]" is stuck at VCC
+    Warning (13410): Pin "HEX7[3]" is stuck at VCC
+    Warning (13410): Pin "HEX7[5]" is stuck at VCC
+    Warning (13410): Pin "LCD_RW" is stuck at GND
+Info (286030): Timing-Driven Synthesis is running
+Info (17016): Found the following redundant logic cells in design
+    Info (17048): Logic cell "lpm_divide:Div1|lpm_divide_0jm:auto_generated|sign_div_unsign_olh:divider|alt_u_div_47f:divider|add_sub_9_result_int[0]~10"
+    Info (17048): Logic cell "lpm_divide:Div1|lpm_divide_0jm:auto_generated|sign_div_unsign_olh:divider|alt_u_div_47f:divider|add_sub_10_result_int[0]~10"
+    Info (17048): Logic cell "lpm_divide:Div1|lpm_divide_0jm:auto_generated|sign_div_unsign_olh:divider|alt_u_div_47f:divider|add_sub_11_result_int[0]~10"
+    Info (17048): Logic cell "lpm_divide:Div1|lpm_divide_0jm:auto_generated|sign_div_unsign_olh:divider|alt_u_div_47f:divider|add_sub_12_result_int[0]~10"
+    Info (17048): Logic cell "lpm_divide:Mod0|lpm_divide_kcm:auto_generated|sign_div_unsign_9nh:divider|alt_u_div_6af:divider|add_sub_12_result_int[0]~0"
+Info (16010): Generating hard_block partition "hard_block:auto_generated_inst"
+    Info (16011): Adding 0 node(s), including 0 DDIO, 0 PLL, 0 transceiver and 0 LCELL
+Warning (21074): Design contains 7 input pin(s) that do not drive logic
+    Warning (15610): No output dependent on input pin "SW[4]"
+    Warning (15610): No output dependent on input pin "SW[5]"
+    Warning (15610): No output dependent on input pin "SW[6]"
+    Warning (15610): No output dependent on input pin "SW[7]"
+    Warning (15610): No output dependent on input pin "SW[8]"
+    Warning (15610): No output dependent on input pin "SW[9]"
+    Warning (15610): No output dependent on input pin "SW[10]"
+Info (21057): Implemented 2044 device resources after synthesis - the final resource count might be different
+    Info (21058): Implemented 24 input pins
+    Info (21059): Implemented 94 output pins
+    Info (21061): Implemented 1926 logic cells
+Info: Quartus II 64-Bit Analysis & Synthesis was successful. 0 errors, 118 warnings
+    Info: Peak virtual memory: 4672 megabytes
+    Info: Processing ended: Fri Jun 12 00:27:29 2026
+    Info: Elapsed time: 00:00:07
+    Info: Total CPU time (on all processors): 00:00:06
+
+

@@ -1,0 +1,92 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+entity LCD_Controller is
+    generic (
+        CLK_Divide : integer := 16
+    );
+    port (
+        -- Host Side
+        iDATA    : in  std_logic_vector(7 downto 0);
+        iRS      : in  std_logic;
+        iStart   : in  std_logic;
+        oDone    : out std_logic := '0';
+        iCLK     : in  std_logic;
+        iRST_N   : in  std_logic;
+        -- LCD Interface
+        LCD_DATA : out std_logic_vector(7 downto 0);
+        LCD_RW   : out std_logic;
+        LCD_EN   : out std_logic := '0';
+        LCD_RS   : out std_logic
+    );
+end LCD_Controller;
+
+architecture Behavioral of LCD_Controller is
+
+    -- Internal Registers
+    signal Cont     : integer range 0 to 31 := 0; -- 对应 Verilog [4:0] Cont
+    signal ST       : integer range 0 to 3  := 0; -- 对应 Verilog [1:0] ST
+    signal preStart : std_logic := '0';
+    signal mStart   : std_logic := '0';
+
+begin
+
+    ---------------------------------------------
+    -- Only write to LCD, bypass iRS to LCD_RS
+    ---------------------------------------------
+    LCD_DATA <= iDATA;
+    LCD_RW   <= '0';
+    LCD_RS   <= iRS;
+
+    process(iCLK, iRST_N)
+    begin
+        if iRST_N = '0' then
+            oDone    <= '0';
+            LCD_EN   <= '0';
+            preStart <= '0';
+            mStart   <= '0';
+            Cont     <=  0;
+            ST       <=  0;
+        elsif rising_edge(iCLK) then
+            
+            -- Input Start Detect (Edge Detector)
+            preStart <= iStart;
+            if preStart = '0' and iStart = '1' then
+                mStart <= '1';
+                oDone  <= '0';
+            end if;
+
+            -- State Machine
+            if mStart = '1' then
+                case ST is
+                    when 0 =>
+                        ST <= 1; -- Wait Setup
+
+                    when 1 =>
+                        LCD_EN <= '1';
+                        ST     <= 2;
+
+                    when 2 =>
+                        if Cont < CLK_Divide then
+                            Cont <= Cont + 1;
+                        else
+                            ST <= 3;
+                        end if;
+
+                    when 3 =>
+                        LCD_EN <= '0';
+                        mStart <= '0';
+                        oDone  <= '1';
+                        Cont   <= 0;
+                        ST     <= 0;
+
+                    when others =>
+                        ST <= 0;
+                end case;
+            end if;
+        end if;
+    end process;
+
+end Behavioral;

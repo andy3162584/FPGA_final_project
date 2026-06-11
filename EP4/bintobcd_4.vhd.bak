@@ -1,0 +1,90 @@
+--******************************************************
+-- Date		: 111/07/08
+-- Author	: BO-AN,CHEN
+-- School	: Daan-Electronics
+-- FPGA		: Cyclone III   (EP3C16Q240C8N)
+-- Title	: Binary to BCD Conveter_4 bits
+-- LES		: 43 / 15408 (< 1%)
+--*******************************************************
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+--*******************************************************
+
+entity bintobcd_4 is
+	generic(fmax : integer := 5E7);
+port(
+	--input pin
+	clk			:in std_logic;
+	rst			:in std_logic;
+	start_pulse	:in std_logic;
+	bin_in		:in std_logic_vector(3 downto 0);
+	--output pin
+	bcd_out		:out std_logic_vector(7 downto 0);
+	done_pulse	:out std_logic
+);
+end bintobcd_4;
+--********************************************************
+architecture beh of bintobcd_4 is
+	signal bin		:std_logic_vector(3 downto 0);
+	signal bcd		:std_logic_vector(7 downto 0);
+	
+	type states is(s0,s1,s2,s3,s4,s5);
+	signal ps,ns,nns	:states;
+	signal flag_start	:std_logic;
+begin
+	--FSM
+	--State changing
+	process(clk,rst)
+	begin
+		if(rst = '0')then
+			ps <= s0;
+		elsif(clk'event and clk = '1')then -- Positive-Edge Trigger
+			ps <= ns;
+		end if;
+	end process;
+	-------------------------------------------------------
+	process(clk,rst)  --Individual states excution sequence
+	begin
+		if(rst = '0')then --init
+			bin <= (others => '0'); --bin clear
+			bcd <= (others => '0'); --bcd clear
+			flag_start <= '0';
+			ns <= s0;
+		elsif(clk'event and clk='0')then -- Negative-Edge Trigger  
+			if(start_pulse = '1')then
+				flag_start <= '1';
+				bin <= bin_in;
+				bcd <= (others => '0');
+				done_pulse <= '0';
+				ns <= s0;
+			elsif(flag_start = '1')then
+				case ps is
+					when s0 =>
+						bcd <= bcd(4 downto 0) & bin(3 downto 1);
+						ns  <= s2;
+						nns <= s1;
+					when s1 =>
+						bcd <= bcd(6 downto 0) & bin(0);
+						ns  <= s3;
+					when s2 =>
+						if(bcd(3 downto 0) >= 5)then
+							bcd(3 downto 0) <= bcd(3 downto 0) + 3;
+						end if;
+						ns <= nns;
+					when s3 => --output data
+						bcd_out <= bcd;
+						ns  <= s4;
+					when s4 => --Generate done pulse(20ns)
+						done_pulse <= '1';
+						ns  <= s5;
+					when others => --clear flag
+						flag_start <= '0';
+						done_pulse <= '0';
+				end case;
+			end if;
+		end if;
+	end process;
+--------------------------------------------------------
+end beh;

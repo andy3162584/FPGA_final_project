@@ -1,0 +1,20 @@
+
+State Machine - |EP4|\x5:ps
+Name \x5:ps.s_forecast \x5:ps.s_aqi_pm10 \x5:ps.s_aqi_pm25 \x5:ps.s_aqi_val \x5:ps.s_aqi_i \x5:ps.s_aqi_q \x5:ps.s_wea \x5:ps.s_humi \x5:ps.s_temp \x5:ps.s_header \x5:ps.s_city 
+\x5:ps.s_city 0 0 0 0 0 0 0 0 0 0 0 
+\x5:ps.s_header 0 0 0 0 0 0 0 0 0 1 1 
+\x5:ps.s_temp 0 0 0 0 0 0 0 0 1 0 1 
+\x5:ps.s_humi 0 0 0 0 0 0 0 1 0 0 1 
+\x5:ps.s_wea 0 0 0 0 0 0 1 0 0 0 1 
+\x5:ps.s_aqi_q 0 0 0 0 0 1 0 0 0 0 1 
+\x5:ps.s_aqi_i 0 0 0 0 1 0 0 0 0 0 1 
+\x5:ps.s_aqi_val 0 0 0 1 0 0 0 0 0 0 1 
+\x5:ps.s_aqi_pm25 0 0 1 0 0 0 0 0 0 0 1 
+\x5:ps.s_aqi_pm10 0 1 0 0 0 0 0 0 0 0 1 
+\x5:ps.s_forecast 1 0 0 0 0 0 0 0 0 0 1 
+
+State Machine - |EP4|RS232:U2|tx_state
+Name tx_state.ST_TX_SEND_NL tx_state.ST_TX_SEND_VAL tx_state.ST_TX_IDLE 
+tx_state.ST_TX_IDLE 0 0 0 
+tx_state.ST_TX_SEND_VAL 0 1 1 
+tx_state.ST_TX_SEND_NL 1 0 1 

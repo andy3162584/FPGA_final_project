@@ -1,0 +1,77 @@
+------------------------------------------------------------
+TimeQuest Timing Analyzer Summary
+------------------------------------------------------------
+
+Type  : Slow 1200mV 85C Model Setup '\x4:LUT_INDEX[1]'
+Slack : -33.712
+TNS   : -165.746
+
+Type  : Slow 1200mV 85C Model Setup 'CLOCK_50'
+Slack : -5.400
+TNS   : -2183.833
+
+Type  : Slow 1200mV 85C Model Hold 'CLOCK_50'
+Slack : -0.851
+TNS   : -3.167
+
+Type  : Slow 1200mV 85C Model Hold '\x4:LUT_INDEX[1]'
+Slack : -0.493
+TNS   : -2.252
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width 'CLOCK_50'
+Slack : -3.000
+TNS   : -776.570
+
+Type  : Slow 1200mV 85C Model Minimum Pulse Width '\x4:LUT_INDEX[1]'
+Slack : 0.440
+TNS   : 0.000
+
+Type  : Slow 1200mV 0C Model Setup '\x4:LUT_INDEX[1]'
+Slack : -30.413
+TNS   : -150.317
+
+Type  : Slow 1200mV 0C Model Setup 'CLOCK_50'
+Slack : -4.845
+TNS   : -1941.502
+
+Type  : Slow 1200mV 0C Model Hold 'CLOCK_50'
+Slack : -0.822
+TNS   : -2.993
+
+Type  : Slow 1200mV 0C Model Hold '\x4:LUT_INDEX[1]'
+Slack : -0.390
+TNS   : -1.729
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width 'CLOCK_50'
+Slack : -3.000
+TNS   : -776.570
+
+Type  : Slow 1200mV 0C Model Minimum Pulse Width '\x4:LUT_INDEX[1]'
+Slack : 0.341
+TNS   : 0.000
+
+Type  : Fast 1200mV 0C Model Setup '\x4:LUT_INDEX[1]'
+Slack : -15.679
+TNS   : -75.861
+
+Type  : Fast 1200mV 0C Model Setup 'CLOCK_50'
+Slack : -2.083
+TNS   : -756.111
+
+Type  : Fast 1200mV 0C Model Hold '\x4:LUT_INDEX[1]'
+Slack : -0.632
+TNS   : -4.274
+
+Type  : Fast 1200mV 0C Model Hold 'CLOCK_50'
+Slack : -0.623
+TNS   : -2.682
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width 'CLOCK_50'
+Slack : -3.000
+TNS   : -643.029
+
+Type  : Fast 1200mV 0C Model Minimum Pulse Width '\x4:LUT_INDEX[1]'
+Slack : 0.326
+TNS   : 0.000
+
+------------------------------------------------------------

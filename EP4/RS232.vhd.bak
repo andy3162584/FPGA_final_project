@@ -1,0 +1,239 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity RS232 is
+    generic (
+        CLK_FREQ  : integer := 50000000;
+        BAUD_RATE : integer := 9600
+    );
+    port (
+        clk           : in  std_logic;
+        rst_n         : in  std_logic;
+        sw            : in  std_logic_vector(17 downto 0);
+        uart_rx       : in  std_logic;
+        uart_tx       : out std_logic;
+        out_temp_data : out std_logic_vector(7 downto 0);
+        out_humi_data : out std_logic_vector(7 downto 0)
+    );
+end entity RS232;
+
+architecture beh of RS232 is
+    constant BIT_TICK : integer := CLK_FREQ / BAUD_RATE;
+
+    -- UART TX 線路
+    signal tx_start : std_logic := '0';
+    signal tx_data  : std_logic_vector(7 downto 0) := (others => '0');
+    signal tx_busy  : std_logic;
+
+    -- UART RX 線路
+    signal rx_done : std_logic;
+    signal rx_data : std_logic_vector(7 downto 0);
+
+    -- SW 邊緣偵測
+    signal sw_r            : std_logic_vector(17 downto 0) := (others => '0');
+    signal selected_sw_id  : integer range 0 to 17 := 0;
+    signal sw_triggered    : std_logic := '0';
+
+    -- TX 狀態機
+    type tx_state_type is (ST_TX_IDLE, ST_TX_SEND_ID, ST_TX_SEND_NL);
+    signal tx_state : tx_state_type := ST_TX_IDLE;
+
+    -- RX 解碼狀態機
+    type rx_state_type is (S_IDLE, S_NAME, S_TEMP, S_HUMI, S_ERROR);
+    signal rx_state : rx_state_type := S_IDLE;
+
+    signal temp_high, temp_low : unsigned(7 downto 0) := (others => '0');
+    signal humi_high, humi_low : unsigned(7 downto 0) := (others => '0');
+    signal is_error            : std_logic := '0';
+
+begin
+
+    ------------------------------------------------------------------------
+    -- SW 邊緣偵測
+    ------------------------------------------------------------------------
+    process(clk, rst_n)
+    begin
+        if rst_n = '0' then
+            sw_r         <= (others => '0');
+            sw_triggered <= '0';
+            selected_sw_id <= 0;
+        elsif rising_edge(clk) then
+            sw_r         <= sw;
+            sw_triggered <= '0';
+            for i in 0 to 17 loop
+                if (sw(i) = '1' and sw_r(i) = '0') then
+                    selected_sw_id <= i;
+                    sw_triggered   <= '1';
+                end if;
+            end loop;
+        end if;
+    end process;
+
+    ------------------------------------------------------------------------
+    -- TX 傳送開關編號狀態機
+    ------------------------------------------------------------------------
+    process(clk, rst_n)
+    begin
+        if rst_n = '0' then
+            tx_state <= ST_TX_IDLE;
+            tx_start <= '0';
+            tx_data  <= (others => '0');
+        elsif rising_edge(clk) then
+            tx_start <= '0';
+            case tx_state is
+                when ST_TX_IDLE =>
+                    if sw_triggered = '1' and tx_busy = '0' then
+                        tx_data  <= std_logic_vector(to_unsigned(48 + selected_sw_id, 8));
+                        tx_start <= '1';
+                        tx_state <= ST_TX_SEND_ID;
+                    end if;
+                when ST_TX_SEND_ID =>
+                    if tx_busy = '0' then
+                        tx_data  <= x"0A"; -- '\n'
+                        tx_start <= '1';
+                        tx_state <= ST_TX_SEND_NL;
+                    end if;
+                when ST_TX_SEND_NL =>
+                    if tx_busy = '0' then
+                        tx_state <= ST_TX_IDLE;
+                    end if;
+                when others => tx_state <= ST_TX_IDLE;
+            end case;
+        end if;
+    end process;
+
+    ------------------------------------------------------------------------
+    -- RX 字串解碼狀態機
+    ------------------------------------------------------------------------
+    process(clk, rst_n)
+    begin
+        if rst_n = '0' then
+            rx_state      <= S_IDLE;
+            out_temp_data <= (others => '0');
+            out_humi_data <= (others => '0');
+            is_error      <= '0';
+            temp_high <= (others => '0'); temp_low <= (others => '0');
+            humi_high <= (others => '0'); humi_low <= (others => '0');
+        elsif rising_edge(clk) then
+            if rx_done = '1' then
+                case rx_state is
+                    when S_IDLE =>
+                        if rx_data = x"45" then -- 'E'
+                            is_error <= '1';
+                            rx_state <= S_ERROR;
+                        else
+                            is_error <= '0';
+                            rx_state <= S_NAME;
+                        end if;
+                    when S_NAME =>
+                        if rx_data = x"3A" then -- ':'
+                            rx_state <= S_TEMP;
+                        end if;
+                    when S_TEMP =>
+                        if rx_data = x"2E" or rx_data = x"43" then -- '.' 或 'C'
+                            null;
+                        elsif rx_data = x"2C" then -- ','
+                            rx_state <= S_HUMI;
+                        else
+                            temp_high <= temp_low;
+                            temp_low  <= unsigned(rx_data) - 48;
+                        end if;
+                    when S_HUMI =>
+                        if rx_data = x"25" then -- '%'
+                            null;
+                        elsif rx_data = x"0A" then -- '\n'
+                            if is_error = '0' then
+                                out_temp_data <= std_logic_vector((temp_high * 10) + temp_low);
+                                out_humi_data <= std_logic_vector((humi_high * 10) + humi_low);
+                            end if;
+                            rx_state <= S_IDLE;
+                        else
+                            humi_high <= humi_low;
+                            humi_low  <= unsigned(rx_data) - 48;
+                        end if;
+                    when S_ERROR =>
+                        if rx_data = x"0A" then
+                            rx_state <= S_IDLE;
+                        end if;
+                    when others => rx_state <= S_IDLE;
+                end case;
+            end if;
+        end if;
+    end process;
+
+    ------------------------------------------------------------------------
+    -- 底層內嵌：UART TX 實作
+    ------------------------------------------------------------------------
+    process(clk, rst_n)
+        variable clk_cnt : integer range 0 to BIT_TICK := 0;
+        variable bit_cnt : integer range 0 to 10 := 0;
+        variable tx_reg  : std_logic_vector(7 downto 0) := (others => '0');
+    begin
+        if rst_n = '0' then
+            uart_tx <= '1'; tx_busy <= '0'; clk_cnt := 0; bit_cnt := 0;
+        elsif rising_edge(clk) then
+            if tx_busy = '0' then
+                uart_tx <= '1';
+                if tx_start = '1' then
+                    tx_busy <= '1'; tx_reg := tx_data; clk_cnt := 0; bit_cnt := 0;
+                    uart_tx <= '0';
+                end if;
+            else
+                if clk_cnt < BIT_TICK - 1 then
+                    clk_cnt := clk_cnt + 1;
+                else
+                    clk_cnt := 0;
+                    if bit_cnt < 8 then
+                        uart_tx <= tx_reg(bit_cnt);
+                        bit_cnt := bit_cnt + 1;
+                    elsif bit_cnt = 8 then
+                        uart_tx <= '1';
+                        bit_cnt := bit_cnt + 1;
+                    else
+                        tx_busy <= '0';
+                    end if;
+                end if;
+            end if;
+        end if;
+    end process;
+
+    ------------------------------------------------------------------------
+    -- 底層內嵌：UART RX 實作
+    ------------------------------------------------------------------------
+    process(clk, rst_n)
+        variable rx_d0, rx_d1 : std_logic := '1';
+        variable rx_flag      : std_logic := '0';
+        variable clk_cnt      : integer range 0 to BIT_TICK := 0;
+        variable bit_cnt      : integer range 0 to 10 := 0;
+        variable rx_reg       : std_logic_vector(7 downto 0) := (others => '0');
+    begin
+        if rst_n = '0' then
+            rx_flag := '0'; clk_cnt := 0; bit_cnt := 0; rx_done <= '0'; rx_data <= (others => '0');
+            rx_d0 := '1'; rx_d1 := '1';
+        elsif rising_edge(clk) then
+            rx_done <= '0';
+            rx_d1 := rx_d0; rx_d0 := uart_rx;
+            if rx_flag = '0' then
+                if rx_d1 = '1' and rx_d0 = '0' then
+                    rx_flag := '1'; clk_cnt := 0; bit_cnt := 0;
+                end if;
+            else
+                if clk_cnt < BIT_TICK - 1 then
+                    clk_cnt := clk_cnt + 1;
+                else
+                    clk_cnt := 0;
+                    if bit_cnt = 0 then
+                        if rx_d1 = '0' then bit_cnt := bit_cnt + 1; else rx_flag := '0'; end if;
+                    elsif bit_cnt <= 8 then
+                        rx_reg(bit_cnt-1) := rx_d1;
+                        bit_cnt := bit_cnt + 1;
+                    else
+                        rx_flag := '0'; rx_done <= '1'; rx_data <= rx_reg;
+                    end if;
+                end if;
+            end if;
+        end if;
+    end process;
+
+end architecture beh;
