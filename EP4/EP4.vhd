@@ -6,42 +6,43 @@
 --LES		:1601 / 114,480 ( < 1 % )
 --***********************************************
 library ieee;
-use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
-
+--*******************************************************--
 entity EP4 is
-    generic(
-        fmax : integer := 50000000;
-        BAUD_RATE : integer := 9600
-    );
-    port(
-        CLOCK_50    :in std_logic;
-        SW          :in std_logic_vector(17 downto 0);
-        KEY         :in std_logic_vector(3 downto 0);
-        uart_rx     :in std_logic;  
-        uart_tx     :out std_logic; 
-        LEDR        :out std_logic_vector(17 downto 0);
-        LEDG        :out std_logic_vector(7 downto 0); 
-        HEX0        :out std_logic_vector(6 downto 0);
-        HEX1        :out std_logic_vector(6 downto 0);
-        HEX2        :out std_logic_vector(6 downto 0);
-        HEX3        :out std_logic_vector(6 downto 0);
-        HEX4        :out std_logic_vector(6 downto 0);
-        HEX5        :out std_logic_vector(6 downto 0);
-        HEX6        :out std_logic_vector(6 downto 0);
-        HEX7        :out std_logic_vector(6 downto 0);
-        LCD_DATA    :out std_logic_vector(7 downto 0);
-        LCD_RW      :out std_logic;
-        LCD_EN      :out std_logic;
-        LCD_RS      :out std_logic
-    );
+   generic(
+      fmax : integer := 50000000;
+      BAUD_RATE : integer := 9600
+   );
+   port(
+		CLOCK_50    :in std_logic;
+		SW          :in std_logic_vector(17 downto 0);
+		KEY         :in std_logic_vector(3 downto 0);
+		uart_rx     :in std_logic;  
+		uart_tx     :out std_logic; 
+		LEDR        :out std_logic_vector(17 downto 0);
+		LEDG        :out std_logic_vector(7 downto 0); 
+		HEX0        :out std_logic_vector(6 downto 0);
+		HEX1        :out std_logic_vector(6 downto 0);
+		HEX2        :out std_logic_vector(6 downto 0);
+		HEX3        :out std_logic_vector(6 downto 0);
+		HEX4        :out std_logic_vector(6 downto 0);
+		HEX5        :out std_logic_vector(6 downto 0);
+		HEX6        :out std_logic_vector(6 downto 0);
+		HEX7        :out std_logic_vector(6 downto 0);
+		LCD_DATA    :out std_logic_vector(7 downto 0);
+		LCD_RW      :out std_logic;
+		LCD_EN      :out std_logic;
+		LCD_RS      :out std_logic
+	);
 end EP4;
 --*******************************************************--
 architecture beh of EP4 is
 	-------------------------------------------------
 	--component
-    component SSD_8 is
+	--Seven Segment Display
+   component SSD_8 is
 	port(
 		--input pin
 		clk				:in std_logic;
@@ -61,7 +62,8 @@ architecture beh of EP4 is
 		HEX7			:out std_logic_vector(6 downto 0)
 	);
 	end component;
-    
+   
+	--RS232
 	component RS232 is
 		generic (
 			CLK_FREQ  : integer := 50000000;
@@ -79,7 +81,8 @@ architecture beh of EP4 is
 			rx_byte   : out std_logic_vector(7 downto 0)  
 		);
 	end component;
-    
+   
+	--LCD
 	component LCD is
 	port (
 		-- Host Side
@@ -135,12 +138,14 @@ architecture beh of EP4 is
 	type max_temp is array (0 to 4) of std_logic_vector(11 downto 0);
 	type min_temp is array (0 to 4) of std_logic_vector(11 downto 0);
 	type humi is array (0 to 4) of std_logic_vector(7 downto 0);
-	type pop is array (0 to 4) of std_logic_vector(7 downto 0);
+	type pop is array (0 to 4) of std_logic_vector(11 downto 0);
 	signal f_date			:date;
 	signal f_max_temp		:max_temp;
 	signal f_min_temp		:min_temp;
 	signal f_hum			:humi;
 	signal f_pop			:pop;
+	-- x6 : Date to week
+	signal weekday			:std_logic_vector(3 downto 0);
 begin
    rst <= KEY(3);
 	
@@ -175,7 +180,6 @@ begin
 				f_1p <= '1';
 				cnt1 <= (others => '0');
 			end if;
-			
 			---- 2Hz ------------------------------------------------------------
 			if (cnt2 < fmax / 4 - 1) then
 				f_2s <= '0'; 
@@ -190,7 +194,6 @@ begin
 				f_2p <= '1';
 				cnt2 <= (others => '0');
 			end if;
-			
 			---- 10Hz -----------------------------------------------------------
 			if (cnt3 < fmax / 20 - 1) then
 				f_10s <= '0'; 
@@ -205,7 +208,6 @@ begin
 				f_10p <= '1';
 				cnt3 <= (others => '0');
 			end if;
-			
 			---- 1kHz -----------------------------------------------------------
 			if (cnt4 < fmax / 2000 - 1) then
 				f_1ks <= '0'; 
@@ -228,6 +230,7 @@ end block x1;
 -- main
 x2 : block
 	signal key2_dly : std_logic := '1';
+	signal led		:std_logic_vector(9 downto 0);
 begin
 	process(CLOCK_50, rst)
 	begin
@@ -241,20 +244,19 @@ begin
 
 			reg_mode <= SW(17 downto 16);
 			
-			if(KEY(0) = '0') then
+			if(KEY(0) = '0') then	--mode confirm
 				mode <= reg_mode;
 				mode_unit <= "00";
-			elsif(KEY(1) = '0') then
+			elsif(KEY(1) = '0') then	--send signal to PC
 				null;
-				
-			elsif (KEY(2) = '0' and key2_dly = '1') then
+			elsif (KEY(2) = '0' and key2_dly = '1') then		--change mode unit
 				mode_unit <= mode_unit + 1;
 				if(mode= "01")then
 					if(mode_unit = "10")then
 						mode_unit <= "00";
 					end if;
 				elsif(mode = "10")then
-					if(mode_unit = "01")then
+					if(mode_unit = "10")then
 						mode_unit <= "00";
 					end if;
 				elsif(mode = "11")then
@@ -264,21 +266,38 @@ begin
 				end if;
 			end if;
 			
-			if(mode = "11")then
-				case SW(15 downto 11) is
-					when "00001"=>
+			if(mode = "11")then		--choose day of forecast
+				if(SW(15 downto 11) = "00001")then
 						mode_day <= 0;
-					when "00010" =>
+				elsif(SW(15 downto 11) = "00010")then
 						mode_day <= 1;
-					when "00100"=>
+				elsif(SW(15 downto 11) = "00100")then
 						mode_day <= 2;
-					when "01000"=>
+				elsif(SW(15 downto 11) = "01000")then
 						mode_day <= 3;
-					when "10000"=>
+				elsif(SW(15 downto 11) = "10000")then
 						mode_day <= 4;
-					when others=>
+				end if;
+				
+				case f_pop(mode_day)(11 downto 4) is
+					 when "00000000" => led <= "0000000000";
+					 when "00000001" => led <= "0000000001";
+					 when "00000010" => led <= "0000000011";
+					 when "00000011" => led <= "0000000111";
+					 when "00000100" => led <= "0000001111";
+					 when "00000101" => led <= "0000011111";
+					 when "00000110" => led <= "0000111111";
+					 when "00000111" => led <= "0001111111";
+					 when "00001000" => led <= "0011111111";
+					 when "00001001" => led <= "0111111111";
+					 when "00010000" => led <= "1111111111";
+					 when others => led <= "0000000000";
 				end case;
+			else
+				led <= (others => '0');
 			end if;
+			LEDG <= led(7 downto 0);
+			LEDR(1 downto 0) <= led(9 downto 8);
 			
 			if(reg_mode /= mode)then
 				mode_change <= '1';
@@ -291,7 +310,7 @@ begin
 end block x2;
 
 --***************************************************************
--- HEX
+-- Seven Segment Display
 x3 : block
 begin
 	process(CLOCK_50,rst)
@@ -311,20 +330,10 @@ begin
 			end if;
 			
 			if(mode = "11")then
-				case mode_day is
-					when 0=>
-						SSD_data(35 downto 24) <= "001101" & "000001";
-					when 1=>
-						SSD_data(35 downto 24) <= "001101" & "000010";
-					when 2=>
-						SSD_data(35 downto 24) <= "001101" & "000011";
-					when 3=>
-						SSD_data(35 downto 24) <= "001101" & "000100";
-					when 4=>
-						SSD_data(35 downto 24) <= "001101" & "000101";
-					when others=> 
-						SSD_data(35 downto 24) <= "111111" & "111111";
-				end case;
+				SSD_data(35 downto 24) <= "100000" & "00" & weekday;
+				SSD_data(23 downto 0) <= "00"&f_date(mode_day)(15 downto 12) & "00" & f_date(mode_day)(11 downto 8) & "00" & f_date(mode_day)(7 downto 4) & "00" & f_date(mode_day)(3 downto 0);
+			else
+				SSD_data(35 downto 0) <= (others => '1');
 			end if;
 			
 			if(mode_change = '1')then
@@ -332,8 +341,6 @@ begin
 			else
 				SSD_flash <= (others => '0');
 			end if;
-			
-			SSD_data(23 downto 0) <= "00"&f_date(0)(15 downto 12) & "00" & f_max_temp(mode_day)(11 downto 8) & "00" & f_max_temp(mode_day)(7 downto 4) & "00" & f_max_temp(mode_day)(3 downto 0);
 		end if;
 	end process;
 end block x3;
@@ -341,56 +348,63 @@ end block x3;
 --***************************************************************--
 -- x4 : LCD
 x4 : block
-	constant LCD_LINE1    : integer := 9;                    
-	constant LCD_CH_LINE  : integer := LCD_LINE1 + 16;       
-	constant LCD_LINE2    : integer := LCD_CH_LINE + 1;      
-	constant LUT_SIZE     : integer := LCD_LINE2 + 16;       
+	constant LCD_LINE1		:integer := 9;                    
+	constant LCD_CH_LINE 	:integer := LCD_LINE1 + 16;       
+	constant LCD_LINE2 		:integer := LCD_CH_LINE + 1;      
+	constant LUT_SIZE			:integer := LCD_LINE2 + 16;       
 
-	signal LUT_INDEX  : integer range 0 to 63 := 0;          
-	signal mLCD_ST    : integer range 0 to 4 := 0; 
-	signal mDLY       : std_logic_vector(17 downto 0) := (others => '0');
+	signal LUT_INDEX 			:integer range 0 to 63 := 0;          
+	signal mLCD_ST    		:integer range 0 to 4 := 0; 
+	signal mDLY       		:std_logic_vector(17 downto 0) := (others => '0');
 	
-	signal boot_delay : integer range 0 to 100000000 := 0;
-	signal is_booted  : std_logic := '0'; 
+	signal boot_delay			:integer range 0 to 100000000 := 0;
+	signal is_booted			:std_logic := '0'; 
 
-	signal scroll_clk_cnt : integer range 0 to 15000000 := 0;
-	signal scroll_offset  : integer range 0 to 39 := 0;
-	signal scroll_index   : integer range 0 to 39 := 0;
+	signal scroll_clk_cnt	:integer range 0 to 15000000 := 0;
+	signal scroll_offset		:integer range 0 to 39 := 0;
+	signal scroll_index		:integer range 0 to 39 := 0;
 
-	signal lut_out    : std_logic_vector(8 downto 0);
+	signal lut_out				:std_logic_vector(8 downto 0);
 	
-	signal lcd_refresh_cnt : integer range 0 to 2 := 0; 
-	signal lcd_update_trig : std_logic := '0';
+	signal lcd_refresh_cnt	:integer range 0 to 2 := 0; 
+	signal lcd_update_trig	:std_logic := '0';
 begin
-
+	-- Timer-based scroll offset controller for LCD display
 	process(CLOCK_50, rst)
 	begin
 		if rst = '0' then
-			scroll_clk_cnt <= 0; scroll_offset  <= 0;
+			scroll_clk_cnt <= 0; 
+			scroll_offset  <= 0;
 		elsif rising_edge(CLOCK_50) then
 			if is_booted = '1' then
 				if scroll_clk_cnt < 15000000 then
 					scroll_clk_cnt <= scroll_clk_cnt + 1;
 				else
 					scroll_clk_cnt <= 0;
-					if scroll_offset >= 39 then scroll_offset <= 0;
-					else scroll_offset <= scroll_offset + 1;
+					if scroll_offset >= 39 then 
+						scroll_offset <= 0;
+					else 
+						scroll_offset <= scroll_offset + 1;
 					end if;
 				end if;
 			end if;
 		end if;
 	end process;
-
+	
+	-- Generates a single-cycle pulse every 10Hz, acting as a trigger for LCD data updates.
 	process(CLOCK_50, rst)
 	begin
 		if rst = '0' then
-			lcd_refresh_cnt <= 0; lcd_update_trig <= '0';
+			lcd_refresh_cnt <= 0; 
+			lcd_update_trig <= '0';
 		elsif rising_edge(CLOCK_50) then
 			if f_10p = '1' then
 				if lcd_refresh_cnt < 1 then 
-					lcd_refresh_cnt <= lcd_refresh_cnt + 1; lcd_update_trig <= '0';
+					lcd_refresh_cnt <= lcd_refresh_cnt + 1; 
+					lcd_update_trig <= '0';
 				else
-					lcd_refresh_cnt <= 0; lcd_update_trig <= '1'; 
+					lcd_refresh_cnt <= 0; 
+					lcd_update_trig <= '1'; 
 				end if;
 			else
 				lcd_update_trig <= '0';
@@ -398,6 +412,7 @@ begin
 		end if;
 	end process;
 
+	-- FSM to control LCD initialization and periodic data updates.
 	process(CLOCK_50, rst)
 	begin
 		if rst = '0' then
@@ -445,19 +460,28 @@ begin
 			end case;
 		end if;
 	end process;
-
+	
+	-- Calculate the position of the scrolling light
 	process(LUT_INDEX, scroll_offset, mode, is_booted)
 		variable temp_idx : integer;
 	begin
 		if (is_booted = '1') and (mode = "00") then
 			if (LUT_INDEX >= 9 and LUT_INDEX <= 24) then
 				temp_idx := (LUT_INDEX - 9) + scroll_offset;
-				if temp_idx >= 40 then scroll_index <= temp_idx - 40;
-				else scroll_index <= temp_idx; end if;
-			else scroll_index <= 0; end if;
-		else scroll_index <= 0; end if;
+				if temp_idx >= 40 then 
+					scroll_index <= temp_idx - 40;
+				else 
+					scroll_index <= temp_idx; 
+				end if;
+			else 
+				scroll_index <= 0; 
+			end if;
+		else 
+			scroll_index <= 0; 
+		end if;
 	end process;
 
+	-- LCD display data
 	process(LUT_INDEX)
 		variable c_val  : integer;
 		variable f_val  : integer;
@@ -465,6 +489,7 @@ begin
 		variable f_ones : integer;
 	begin
 		case LUT_INDEX is
+			-- Initialization data
 			when 0 => lut_out <= "000110000";
 			when 1 => lut_out <= "000110000";
 			when 2 => lut_out <= "000110000";
@@ -500,7 +525,7 @@ begin
 					end case;
 				elsif(mode_change = '1')then
 					case reg_mode is
-						-- 模式 0: MODE 0
+						-- MODE 0
 						when "00" =>
 							case LUT_INDEX is
 								when 9 => lut_out <= "101001101"; -- 'M'
@@ -512,7 +537,7 @@ begin
 								when others => lut_out <= "100100000";
 							end case;
 
-						-- 模式 1: MODE 1
+						-- MODE 1
 						when "01" =>
 							case LUT_INDEX is
 								when 9 => lut_out <= "101001101"; -- 'M'
@@ -524,7 +549,7 @@ begin
 								when others => lut_out <= "100100000";
 							end case;
 
-						-- 模式 2: MODE 2
+						-- MODE 2
 						when "10" =>
 							case LUT_INDEX is
 								when 9 => lut_out <= "101001101"; -- 'M'
@@ -536,7 +561,7 @@ begin
 								when others => lut_out <= "100100000";
 							end case;
 
-						-- 模式 3: MODE 3
+						-- MODE 3
 						when "11" =>
 							case LUT_INDEX is
 								when 9 => lut_out <= "101001101"; -- 'M'
@@ -551,7 +576,8 @@ begin
 					end case;
 				else
 					case mode is
-						when "00" =>  -- 模式 0：滾動顯示 "Weather Management System" (0 ~ 39 點陣)
+						--mode 00 : Weather Management System
+						when "00" =>
 							case scroll_index is
 								when 0  => lut_out <= "101010111"; -- 'W'
 								when 1  => lut_out <= "101100101"; -- 'e'
@@ -582,9 +608,10 @@ begin
 								when 26 => lut_out <= "100101010"; -- '*'
 								when 27 => lut_out <= "100101010"; -- '*'
 								when 28 => lut_out <= "100101010"; -- '*'
-								when others => lut_out <= "100100000"; -- 剩餘空間留白滾動
+								when others => lut_out <= "100100000";
 							end case;
-						when others => 
+						-- mode 01 10 11 : Display city name
+						when others =>
 							case LUT_INDEX is
 								when 9  => lut_out <= '1' & city(127 downto 120);
 								when 10 => lut_out <= '1' & city(119 downto 112);
@@ -627,12 +654,10 @@ begin
 				else
 					if(mode_change = '0')then
 						case mode is
-							when "01" => -- 僅在城市天氣模式下啟用 KEY(2) 的三合一分流
+							--mode 01 : Displays today's temperature, humidity, and weather conditions.
+							when "01" =>
 								case mode_unit is
-									-------------------------------------------------------
-									-- 1. 顯示攝氏： T:25C  H:60%
-									-------------------------------------------------------
-									when "00" =>
+									when "00" =>	--temperature
 										case LUT_INDEX is
 											when 26 => lut_out <= "101010100"; -- 'T'
 											when 27 => lut_out <= "100111010"; -- ':'
@@ -647,11 +672,7 @@ begin
 											when 36 => lut_out <= "100100101"; -- '%'
 											when others => lut_out <= "100100000";
 										end case;
-									
-									-------------------------------------------------------
-									-- 2. 顯示華氏： T:77F  H:60%
-									-------------------------------------------------------
-									when "01" =>
+									when "01" =>	--humidity
 										c_val  := (to_integer(unsigned(temp(11 downto 8))) * 10) + to_integer(unsigned(temp(7 downto 4)));
 										f_val  := ((c_val * 9) / 5) + 32;
 										f_tens := f_val / 10;
@@ -670,11 +691,7 @@ begin
 											when 36 => lut_out <= "100100101"; -- '%'
 											when others => lut_out <= "100100000";
 										end case;
-
-									-------------------------------------------------------
-									-- 3. 顯示完整英文字串天氣名字： WEA: CLOUDY    
-									-------------------------------------------------------
-									when "10" =>
+									when "10" =>	--weather conditions
 										case LUT_INDEX is
 											when 26 => lut_out <= "101010111"; -- 'W'
 											when 27 => lut_out <= "101000101"; -- 'E'
@@ -696,44 +713,159 @@ begin
 										end case;
 									when others => lut_out <= "100100000";
 								end case;
+							--mode 10 : Displays AQI, PM2.5, and PM10
 							when "10"=>
 								case mode_unit is
-									when "00"=>
+									when "00"=>		-- AQI
 										case LUT_INDEX is
-											when 26 => lut_out <= "101010000"; -- 'P'
-											when 27 => lut_out <= "101001101"; -- 'M'
-											when 28 => lut_out <= "100110010"; -- '2'
-											when 29 => lut_out <= "100101110"; -- '.'
-											when 30 => lut_out <= "100110101"; -- '5' 
-											when 31 => lut_out <= "100111010"; -- ':'
-											when 32 => lut_out <= "10011" & pm25(11 downto 8);
-											when 33 => lut_out <= "10011" & pm25(7 downto 4);
-											when 34 => lut_out <= "100101110"; -- '.'
-											when 35 => lut_out <= "10011" & pm25(3 downto 0);
-											when others => lut_out <= "100100000";
+											 when 26 => lut_out <= "101000001"; -- 'A'
+											 when 27 => lut_out <= "101010001"; -- 'Q'
+											 when 28 => lut_out <= "101001001"; -- 'I'
+											 when 29 => lut_out <= "100100000"; -- ' '
+											 when 30 => lut_out <= "100111010"; -- ':'
+											 when 31 => lut_out <= "100100000"; -- ' '
+											 when 32 => lut_out <= "10011" & aqi(3 downto 0);
+											 when others => lut_out <= "100100000";
 										end case;
-									when "01"=>
+									when "01"=>		-- PM2.5
 										case LUT_INDEX is
-											when 26 => lut_out <= "101010000"; -- 'P'
-											when 27 => lut_out <= "101001101"; -- 'M'
-											when 28 => lut_out <= "100110001"; -- '1'
-											when 29 => lut_out <= "100110000"; -- '0' 
-											when 30 => lut_out <= "100111010"; -- ':'
-											when 31 => lut_out <= "10011" & pm10(11 downto 8);
-											when 32 => lut_out <= "10011" & pm10(7 downto 4);
-											when 33 => lut_out <= "100101110"; -- '.'
-											when 34 => lut_out <= "10011" & pm10(3 downto 0);
-											when others => lut_out <= "100100000";
+											 when 26 => lut_out <= "101010000"; -- 'P'
+											 when 27 => lut_out <= "101010101"; -- 'M'
+											 when 28 => lut_out <= "100110010"; -- '2'
+											 when 29 => lut_out <= "100101110"; -- '.'
+											 when 30 => lut_out <= "100110101"; -- '5'
+											 when 31 => lut_out <= "100111010"; -- ':'
+											 when 32 => 
+												if(pm25(11 downto 8) = "0000")then
+													lut_out <= "100100000";
+												else
+													lut_out <= "10011" & pm25(11 downto 8);
+												end if;
+											 when 33 => lut_out <= "10011" & pm25(7 downto 4);
+											 when 34 => lut_out <= "100101110"; -- '.'
+											 when 35 => lut_out <= "10011" & pm25(3 downto 0);
+											 when 36 => lut_out <= "100100000"; -- ' '
+											 when 37 => lut_out <= "101110101"; -- 'u'
+											 when 38 => lut_out <= "101100111"; -- 'g'
+											 when 39 => lut_out <= "100101111"; -- '/'
+											 when 40 => lut_out <= "101101101"; -- 'm'
+											 when 41 => lut_out <= "100110011"; -- '3'
+											 when others => lut_out <= "100100000";
+										end case;
+									when "10"=>		--PM10
+										case LUT_INDEX is
+											 when 26 => lut_out <= "101010000"; -- 'P'
+											 when 27 => lut_out <= "101001101"; -- 'M'
+											 when 28 => lut_out <= "100110001"; -- '1'
+											 when 29 => lut_out <= "100110000"; -- '0' 
+											 when 30 => lut_out <= "100111010"; -- ':'
+											 when 31 => 
+												if(pm10(11 downto 8) = "0000")then
+													lut_out <= "100100000";
+												else
+													lut_out <= "10011" & pm10(11 downto 8);
+												end if;
+											 when 32 => lut_out <= "10011" & pm10(7 downto 4);
+											 when 33 => lut_out <= "100101110"; -- '.'
+											 when 34 => lut_out <= "10011" & pm10(3 downto 0);
+											 when 35 => lut_out <= "100100000"; -- ' '
+											 when 36 => lut_out <= "101110101"; -- 'u'
+											 when 37 => lut_out <= "101100111"; -- 'g'
+											 when 38 => lut_out <= "100101111"; -- '/'
+											 when 39 => lut_out <= "101101101"; -- 'm'
+											 when 40 => lut_out <= "100110011"; -- '3'
+											 when others => lut_out <= "100100000";
 										end case;
 									when others=>
 								end case;
+							-- mode 11 : Based on the number of days, the highest and lowest temperatures, humidity, and probability of rainfall are displayed.
 							when "11"=>
-								
+								case mode_unit is
+									when "00"=>		-- Max temperature
+										case LUT_INDEX is
+											 when 26 => lut_out <= "101001101"; -- 'M'
+											 when 27 => lut_out <= "101000001"; -- 'A'
+											 when 28 => lut_out <= "101011000"; -- 'X'
+											 when 29 => lut_out <= "100100000"; -- ' '
+											 when 30 => lut_out <= "101010100"; -- 'T'
+											 when 31 => lut_out <= "101000101"; -- 'E'
+											 when 32 => lut_out <= "101001101"; -- 'M'
+											 when 33 => lut_out <= "101010000"; -- 'P'
+											 when 34 => lut_out <= "100100000"; -- ' '
+											 when 35 => lut_out <= "100111010"; -- ':'
+											 when 36 => lut_out <= "10011" & f_max_temp(mode_day)(11 downto 8);
+											 when 37 => lut_out <= "10011" & f_max_temp(mode_day)(7 downto 4);
+											 when 38 => lut_out <= "100101110"; -- '.'
+											 when 39 => lut_out <= "10011" & f_max_temp(mode_day)(3 downto 0);
+											 when others => lut_out <= "100100000";
+										end case;
+									when "01"=>		--min temperature
+										case LUT_INDEX is
+											 when 26 => lut_out <= "101001101"; -- 'M'
+											 when 27 => lut_out <= "101001001"; -- 'I'
+											 when 28 => lut_out <= "101001110"; -- 'N'
+											 when 29 => lut_out <= "100100000"; -- ' '
+											 when 30 => lut_out <= "101010100"; -- 'T'
+											 when 31 => lut_out <= "101000101"; -- 'E'
+											 when 32 => lut_out <= "101001101"; -- 'M'
+											 when 33 => lut_out <= "101010000"; -- 'P'
+											 when 34 => lut_out <= "100100000"; -- ' '
+											 when 35 => lut_out <= "100111010"; -- ':'
+											 when 36 => lut_out <= "10011" & f_min_temp(mode_day)(11 downto 8);
+											 when 37 => lut_out <= "10011" & f_min_temp(mode_day)(7 downto 4);
+											 when 38 => lut_out <= "100101110"; -- '.'
+											 when 39 => lut_out <= "10011" & f_min_temp(mode_day)(3 downto 0);
+											 when others => lut_out <= "100100000";
+										end case;
+									when "10"=>		--humidity
+										case LUT_INDEX is
+											 when 26 => lut_out <= "101001000"; -- 'H'
+											 when 27 => lut_out <= "101010101"; -- 'U'
+											 when 28 => lut_out <= "101001101"; -- 'M'
+											 when 29 => lut_out <= "100100000"; -- ' '
+											 when 30 => lut_out <= "100111010"; -- ':'
+											 when 31 => lut_out <= "100100000"; -- ' '
+											 when 32 => lut_out <= "10011" & f_hum(mode_day)(7 downto 4);
+											 when 33 => lut_out <= "10011" & f_hum(mode_day)(3 downto 0);
+											 when 34 => lut_out <= "100100101"; -- '%'
+											 when others => lut_out <= "100100000";
+										end case;
+									when "11"=>		--Rainfall probability
+										case LUT_INDEX is
+											when 26 => lut_out <= "101010010"; -- 'R'
+											when 27 => lut_out <= "101000001"; -- 'a'
+											when 28 => lut_out <= "101001001"; -- 'i'
+											when 29 => lut_out <= "101001110"; -- 'n'
+											when 30 => lut_out <= "101010000"; -- 'P'
+											when 31 => lut_out <= "101010010"; -- 'r'
+											when 32 => lut_out <= "101001111"; -- 'o'
+											when 33 => lut_out <= "101000010"; -- 'b'
+											when 34 => lut_out <= "100100000"; -- ' '
+											when 35 => lut_out <= "100111010"; -- ':'
+											when 36 => lut_out <= "100100000"; -- ' '
+											when 37 => 
+												if(f_pop(mode_day)(11 downto 8) = "0000")then
+													lut_out <= "100100000";
+												else
+													lut_out <= "10011" & f_pop(mode_day)(11 downto 8);
+												end if;
+											when 38 => 
+												if(f_pop(mode_day)(11 downto 8) = "0000" and f_pop(mode_day)(7 downto 4) = "0000")then
+													lut_out <= "100100000";
+												else
+													lut_out <= "10011" & f_pop(mode_day)(7 downto 4);
+												end if;
+											when 39 => lut_out <= "10011" & f_pop(mode_day)(3 downto 0);
+											when 40 => lut_out <= "100100101"; -- '%'
+											when others => lut_out <= "100100000";
+										end case;
+									when others=> lut_out <= "100100000";
+								end case;
 							when others => lut_out <= "100100000";
 						end case;
 					else
 						case reg_mode is
-							-- 模式 0: Standby
+							-- mode 0: Standby
 							when "00" =>
 								case LUT_INDEX is
 									when 26 => lut_out <= "101010011"; -- 'S'
@@ -751,7 +883,7 @@ begin
 									when others => lut_out <= "100100000";
 								end case;
 
-							-- 模式 1: Weather
+							-- mode 1: Weather
 							when "01" =>
 								case LUT_INDEX is
 									when 26 => lut_out <= "101010111"; -- 'W'
@@ -775,7 +907,7 @@ begin
 									 when 26 => lut_out <= "101000001"; -- 'A'
 									 when 27 => lut_out <= "101010001"; -- 'Q'
 									 when 28 => lut_out <= "101001001"; -- 'I'
-									 when 29 => lut_out <= "100100000"; -- ' ' (SPACE)
+									 when 29 => lut_out <= "100100000"; -- ' '
 									 when 30 => lut_out <= "101000100"; -- 'D'
 									 when 31 => lut_out <= "101101001"; -- 'I'
 									 when 32 => lut_out <= "101010011"; -- 'S'
@@ -783,7 +915,7 @@ begin
 									 when 34 => lut_out <= "101101100"; -- 'L'
 									 when 35 => lut_out <= "101100001"; -- 'A'
 									 when 36 => lut_out <= "101011001"; -- 'Y'
-									 when others => lut_out <= "100100000"; -- DEFAULT: 空白
+									 when others => lut_out <= "100100000"; 
 								end case;
 
 							-- mode3 : 5 days forecast
@@ -796,7 +928,7 @@ begin
 									  when 30 => lut_out <= "101111001"; -- 'Y'
 									  when 31 => lut_out <= "101010011"; -- 'S'
 									  when 32 => lut_out <= "100100000"; -- ' '
-									  when 33 => lut_out <= "101000110"; -- 'F' (修正編碼)
+									  when 33 => lut_out <= "101000110"; -- 'F'
 									  when 34 => lut_out <= "101001111"; -- 'O'
 									  when 35 => lut_out <= "101010010"; -- 'R'
 									  when 36 => lut_out <= "101000101"; -- 'E'
@@ -815,35 +947,19 @@ begin
 end block x4;
 
 --***************************************************************
--- x5 : RS232 (四階段字串接收狀態機)
+-- x5 : RS232
 x5 : block
-	-- 統一狀態定義
-	type states is (s_header, 
-	                s_city, s_temp, s_humi, s_wea, 
-	                s_aqi_q, s_aqi_i, s_aqi_val, s_aqi_pm25, s_aqi_pm10,
-						 s_forecast);
-	signal ps : states := s_header; -- 從標頭開始
+	type states is (s_header, s_city, s_temp, s_humi, s_wea, s_aqi_q, s_aqi_i, s_aqi_val, s_aqi_pm25, s_aqi_pm10, s_forecast);
+	signal ps : states := s_header;
 	signal char_cnt : integer range 0 to 16 := 0;
 	signal field_cnt	:integer range 0 to 4 := 0;
 	signal f_idx		:integer range 0 to 4 := 0;	
 begin
-	process(f_idx)
-	begin
-		 case f_idx is
-			  when 0 => LEDR(4 downto 0) <= "00001"; -- 第1天時亮1顆 (這樣比較直觀)
-			  when 1 => LEDR(4 downto 0) <= "00011";
-			  when 2 => LEDR(4 downto 0) <= "00111";
-			  when 3 => LEDR(4 downto 0) <= "01111";
-			  when 4 => LEDR(4 downto 0) <= "11111";
-			  when others => LEDR(4 downto 0) <= "00000";
-		 end case;
-	end process;
-	
 	process(CLOCK_50, rst)
 	begin
 		if (rst = '0') then
-			city        <= (others => '0');
-			weather     <= (others => '0');
+			city 			<= x"20202020202020202020202020202020";
+			weather     <= x"20202020202020202020202020202020";
 			temp        <= (others => '1');
 			hum         <= (others => '1');
 			char_cnt    <= 0;
@@ -851,21 +967,25 @@ begin
 		elsif rising_edge(CLOCK_50) then 
 			if r_ready = '1' then
 				case ps is
+					-------------------------------------------------
 					when s_header =>
-						char_cnt <= 0; -- 每次重啟都重置計數
-						if r_byte = x"43" then 
-							ps <= s_city;  -- 'C' (City)
-							city <= (others => '0');
+						char_cnt <= 0;
+						if r_byte = x"3A" then 
+							ps <= s_city;
 							pm25    <= (others => '0');
 							pm10    <= (others => '0');
-							weather     <= (others => '0');
-							
+							city 			<= x"20202020202020202020202020202020";
+							weather     <= x"20202020202020202020202020202020";
+						elsif(r_byte = x"43")then
+							null;
 						else 
-							ps <= s_header; -- 繼續等待合法標頭
+							ps <= s_header;
 						end if;
-
-					when s_city =>
-						if r_byte = x"3A" then char_cnt <= 0; ps <= s_temp;
+					-------------------------------------------------
+					when s_city =>		--catch city
+						if r_byte = x"2C" then 
+							char_cnt <= 0; 
+							ps <= s_temp;
 						elsif r_byte /= x"0A" then
 							if char_cnt < 16 then
 								case char_cnt is
@@ -887,16 +1007,16 @@ begin
 									when 15 => city(7   downto 0)   <= r_byte;
 									when others => null;
 								end case;
+								
 								char_cnt <= char_cnt + 1;
 							end if;
 						end if;
-		
-					-- 2. 抓取三位數溫度 (修改後：忽略非數字字元)
-					when s_temp =>
-						if r_byte = x"2C" then -- 遇到 ',' 結束
+					-------------------------------------------------
+					when s_temp =>		--temperature
+						if r_byte = x"2C" then -- ','
 							char_cnt <= 0;
 							ps       <= s_humi;
-						elsif r_byte >= x"30" and r_byte <= x"39" then -- 只處理 '0'-'9'
+						elsif r_byte >= x"30" and r_byte <= x"39" then 
 							case char_cnt is
 								when 0 => temp(11 downto 8) <= r_byte(3 downto 0); char_cnt <= 1;
 								when 1 => temp(7 downto 4)  <= r_byte(3 downto 0); char_cnt <= 2;
@@ -904,13 +1024,12 @@ begin
 								when others => null;
 							end case;
 						end if;
-					
-					-- 3. 抓取兩位數濕度
-					when s_humi =>
-						if r_byte = x"2C" then -- 遇到 ',' 結束，跳進讀取天氣
+					-------------------------------------------------
+					when s_humi =>		--humidity
+						if r_byte = x"2C" then
 							char_cnt <= 0;
 							ps       <= s_wea;        
-						elsif r_byte >= x"30" and r_byte <= x"39" then -- 只處理 '0'-'9'
+						elsif r_byte >= x"30" and r_byte <= x"39" then
 							case char_cnt is
 								when 0 => 
 									hum(7 downto 4) <= r_byte(3 downto 0); 
@@ -921,12 +1040,11 @@ begin
 								when others => null;
 							end case;
 						end if;
-					
-					-- 4. 讀取完整的英文天氣名字
-					when s_wea =>
-						if r_byte = x"2C" then -- 遇到 ',' 結束 (這是連接到 AQI 的關鍵)
+					-------------------------------------------------
+					when s_wea =>		--weather
+						if r_byte = x"2C" then -- ','
 							char_cnt <= 0;
-							ps <= s_aqi_val; -- 轉跳到 AQI 解析狀態！
+							ps <= s_aqi_val;
 						elsif r_byte = x"0A" or r_byte = x"0D" then
 							null;
 						else
@@ -953,129 +1071,169 @@ begin
 								char_cnt <= char_cnt + 1;
 							end if;
 						end if;
-						
-					-- 3. 解析 AQI 數值
-					when s_aqi_val =>
-						if r_byte = x"2C" then -- 遇到 ',' 結束
+					-------------------------------------------------
+					when s_aqi_val =>		--AQI
+						if r_byte = x"2C" then -- ','
 							char_cnt <= 0;
 							ps <= s_aqi_pm25; 
-						elsif r_byte >= x"30" and r_byte <= x"39" then 
+						elsif r_byte >= x"30" and r_byte <= x"39" then 	--0~9
 							aqi <= r_byte(3 downto 0); 
 						end if;
-
-					 -- 2. PM2.5 解析 (忽略小數點)
-					 when s_aqi_pm25 =>
-						  if r_byte = x"2C" then 
-								ps <= s_aqi_pm10; -- 遇到 ',' 轉 PM10
-								char_cnt <= 0;
-						  elsif r_byte = x"2E" then 
-								null;
-						  elsif r_byte >= x"30" and r_byte <= x"39" then 
-								case char_cnt is
-									when 0 => 
-										pm25(11 downto 8) <= r_byte(3 downto 0); 
-										char_cnt <= 1;
-									when 1 => 
-										pm25(7 downto 4) <= r_byte(3 downto 0); 
-										char_cnt <= 2;
-									when 2 => 
-										pm25(3 downto 0) <= r_byte(3 downto 0); 
-										char_cnt <= 3;
-									when others => null;
-								end case;
-						  end if;
-
-					 -- 3. PM10 解析
-					 when s_aqi_pm10 =>
-						  if r_byte = x"2C" then 
-								ps <= s_forecast;
-								char_cnt <= 0;
-						  elsif r_byte = x"2E" then null;          -- 忽略小數點 '.'
-						  elsif r_byte >= x"30" and r_byte <= x"39" then
-								case char_cnt is
-									when 0 => 
-										pm10(11 downto 8) <= r_byte(3 downto 0); 
-										char_cnt <= 1;
-									when 1 => 
-										pm10(7 downto 4) <= r_byte(3 downto 0); 
-										char_cnt <= 2;
-									when 2 => 
-										pm10(3 downto 0) <= r_byte(3 downto 0); 
-										char_cnt <= 3;
-									when others => null;
-								end case;
-						  end if;
-						  
+					-------------------------------------------------
+					when s_aqi_pm25 =>	-- PM2.5
+						if r_byte = x"2C" then 
+							ps <= s_aqi_pm10; -- ','
+							char_cnt <= 0;
+						elsif r_byte = x"2E" then -- '.'
+							null;
+						elsif r_byte >= x"30" and r_byte <= x"39" then 
+							case char_cnt is
+								when 0 => 
+									pm25(11 downto 8) <= r_byte(3 downto 0); 
+									char_cnt <= 1;
+								when 1 => 
+									pm25(7 downto 4) <= r_byte(3 downto 0); 
+									char_cnt <= 2;
+								when 2 => 
+									pm25(3 downto 0) <= r_byte(3 downto 0); 
+									char_cnt <= 3;
+								when others => null;
+							end case;
+						end if;
+					-------------------------------------------------
+					when s_aqi_pm10 =>		-- PM10
+						if r_byte = x"2C" then -- ','
+							ps <= s_forecast;
+							char_cnt <= 0;
+						elsif r_byte = x"2E" then -- '.'
+							null;   
+						elsif r_byte >= x"30" and r_byte <= x"39" then
+							case char_cnt is
+								when 0 => 
+									pm10(11 downto 8) <= r_byte(3 downto 0); 
+									char_cnt <= 1;
+								when 1 => 
+									pm10(7 downto 4) <= r_byte(3 downto 0); 
+									char_cnt <= 2;
+								when 2 => 
+									pm10(3 downto 0) <= r_byte(3 downto 0); 
+									char_cnt <= 3;
+								when others => 
+									null;
+							end case;
+						end if;
+					-------------------------------------------------
 					when s_forecast =>
-						 if r_byte = x"46" then
-							  field_cnt <= 0;
-							  char_cnt  <= 0;
-						 elsif r_byte = x"3A" then
-							  null; 
-						 elsif r_byte = x"2C" then
-							  field_cnt <= field_cnt + 1;
-							  char_cnt  <= 0;
-						 elsif r_byte = x"0A" then
-							  if f_idx < 4 then
-									f_idx <= f_idx + 1;
-							  else
-									f_idx <= 0;
-									ps    <= s_header;
-							  end if;
-							  field_cnt <= 0;
-							  char_cnt  <= 0;
-						 end if;
-						
-						if field_cnt = 0 then
-							if(r_byte /= x"2F" and r_byte >= x"30" and r_byte <= x"39")then 
-								  case char_cnt is
+						if r_byte = x"46" then -- 'F'
+							field_cnt <= 0;
+							char_cnt  <= 0;
+						elsif r_byte = x"2C" then -- ','
+							field_cnt <= field_cnt + 1;
+							char_cnt  <= 0;
+						elsif r_byte = x"0A" then -- '\n'
+							if f_idx < 4 then
+								f_idx <= f_idx + 1;
+							else
+								f_idx <= 0;
+								ps    <= s_header;
+							end if;
+							field_cnt <= 0;
+							char_cnt  <= 0;
+						elsif (r_byte >= x"30" and r_byte <= x"39") then
+							if field_cnt = 0 then	-- date
+								if(r_byte /= x"2F" and r_byte >= x"30" and r_byte <= x"39")then 
+									case char_cnt is
 										when 0 => f_date(f_idx)(15 downto 12) <= r_byte(3 downto 0); char_cnt <= 1;
 										when 1 => f_date(f_idx)(11 downto 8)  <= r_byte(3 downto 0); char_cnt <= 2;
 										when 2 => f_date(f_idx)(7  downto 4)  <= r_byte(3 downto 0); char_cnt <= 3;
 										when 3 => f_date(f_idx)(3  downto 0)  <= r_byte(3 downto 0); char_cnt <= 4;
 										when others => null;
-								  end case;
-							 end if;
-						elsif field_cnt = 1 then
-							 if(r_byte /= x"2e" and r_byte >= x"30" and r_byte <= x"39")then 
-								  case char_cnt is
+									end case;
+								end if;
+							elsif field_cnt = 1 then	--max temperature
+								if(r_byte /= x"2e" and r_byte >= x"30" and r_byte <= x"39")then 
+									case char_cnt is
 										when 0 => f_max_temp(f_idx)(11 downto 8)  <= r_byte(3 downto 0); char_cnt <= 1;
 										when 1 => f_max_temp(f_idx)(7  downto 4)  <= r_byte(3 downto 0); char_cnt <= 2;
 										when 2 => f_max_temp(f_idx)(3  downto 0)  <= r_byte(3 downto 0); char_cnt <= 3;
 										when others => null;
-								  end case;
-							 end if;
-						elsif field_cnt = 2 then
-							 if(r_byte /= x"2e" and r_byte >= x"30" and r_byte <= x"39")then 
-								  case char_cnt is
+									end case;
+								end if;
+							elsif field_cnt = 2 then	--min temperature
+								if(r_byte /= x"2e" and r_byte >= x"30" and r_byte <= x"39")then 
+									case char_cnt is
 										when 0 => f_min_temp(f_idx)(11 downto 8)  <= r_byte(3 downto 0); char_cnt <= 1;
 										when 1 => f_min_temp(f_idx)(7  downto 4)  <= r_byte(3 downto 0); char_cnt <= 2;
 										when 2 => f_min_temp(f_idx)(3  downto 0)  <= r_byte(3 downto 0); char_cnt <= 3;
 										when others => null;
-								  end case;
-							 end if;
-						elsif field_cnt = 3 then
-							 if(r_byte >= x"30" and r_byte <= x"39")then 
-								  case char_cnt is
+									end case;
+								end if;
+							elsif field_cnt = 3 then	--humidity
+								if(r_byte >= x"30" and r_byte <= x"39")then 
+									case char_cnt is
 										when 0 => f_hum(f_idx)(7  downto 4)  <= r_byte(3 downto 0); char_cnt <= 1;
 										when 1 => f_hum(f_idx)(3  downto 0)  <= r_byte(3 downto 0); char_cnt <= 2;
 										when others => null;
-								  end case;
-							 end if;
-						elsif field_cnt = 4 then
-							 if(r_byte >= x"30" and r_byte <= x"39")then 
-								  case char_cnt is
-										when 0 => f_pop(f_idx)(7  downto 4)  <= r_byte(3 downto 0); char_cnt <= 1;
-										when 1 => f_pop(f_idx)(3  downto 0)  <= r_byte(3 downto 0); char_cnt <= 2;
+									end case;
+								end if;
+							elsif field_cnt = 4 then	--Rainfall probability
+								if(r_byte >= x"30" and r_byte <= x"39")then 
+									case char_cnt is
+										when 0 => f_pop(f_idx)(11 downto 8)  <= r_byte(3 downto 0); char_cnt <= 1;
+										when 1 => f_pop(f_idx)(7 downto 4)  <= r_byte(3 downto 0); char_cnt <= 2;
+										when 2 => f_pop(f_idx)(3 downto 0)  <= r_byte(3 downto 0); char_cnt <= 3;
 										when others => null;
-								  end case;
-							 end if;
+									end case;
+								end if;
+							end if;
+						elsif r_byte = x"2E" or r_byte = x"2F" then
+							null; 
+						else
+							null; 
 						end if;
+					-------------------------------------------------
 					when others => ps <= s_header;
 				end case;
 			end if;
 		end if;
 	end process;
 end block x5;
+--***************************************************************
+-- x6 : date to weekday
+x6 : block
+begin
+	process(CLOCK_50)
+		variable y		 	:integer;
+		variable m			:integer range 1 to 24;
+		variable d			:integer range 0 to 31;
+		variable date 		:std_logic_vector(15 downto 0);
+		variable total		:integer;
+	begin
+		if(CLOCK_50'event and CLOCK_50='1')then
+			y := 2026;
+			date := f_date(mode_day);
+			m := (to_integer(unsigned(date(15 downto 12))) * 10) + 
+					to_integer(unsigned(date(11 downto 8)));
+					
+			d := (to_integer(unsigned(date(7 downto 4))) * 10) + 
+					to_integer(unsigned(date(3 downto 0)));
+			
+			if m < 3 then
+				m := m + 12;
+				y := y - 1;
+			end if;
+			  
+			total := d + ((m + 1) * 26 / 10) + (y mod 100) + ((y mod 100) / 4) + ((y / 100) / 4) - 2 * (y / 100);
+			
+			total := (total mod 7)-1;
+			
+			if total <= 0 then 
+				total := total + 7; 
+			end if;
+			
+			weekday <= std_logic_vector(to_unsigned(total, 4));
+		end if;
+	end process;
+end block x6;
 --***************************************************************
 end beh;

@@ -1,8 +1,13 @@
 <?xml version="1.0" ?>
 <LOG_ROOT>
 	<PROJECT NAME="EP4">
-		<CBX_INST_ENTRY INSTANCE_NAME="|EP4|lpm_divide:Div0" CBX_FILE_NAME="lpm_divide_uim.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|EP4|altsyncram:Mux9_rtl_0" CBX_FILE_NAME="altsyncram_pev.tdf"/>
 		<CBX_INST_ENTRY INSTANCE_NAME="|EP4|lpm_divide:Div1" CBX_FILE_NAME="lpm_divide_0jm.tdf"/>
 		<CBX_INST_ENTRY INSTANCE_NAME="|EP4|lpm_divide:Mod0" CBX_FILE_NAME="lpm_divide_kcm.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|EP4|lpm_divide:Mod2" CBX_FILE_NAME="lpm_divide_iqo.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|EP4|lpm_mult:Mult0|multcore:mult_core|mpar_add:padder|lpm_add_sub:adder[0]" CBX_FILE_NAME="add_sub_bfh.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|EP4|lpm_divide:Div0" CBX_FILE_NAME="lpm_divide_uim.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|EP4|lpm_divide:Div2" CBX_FILE_NAME="lpm_divide_tim.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|EP4|lpm_divide:Mod1" CBX_FILE_NAME="lpm_divide_ecm.tdf"/>
 	</PROJECT>
 </LOG_ROOT>

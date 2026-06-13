@@ -208,18 +208,20 @@ namespace WeatherApp
 							string enCondition = conditionMap.FirstOrDefault(x => x.Value == chWeather).Key?.ToUpper() ?? "UNKNOWN";
 
 							var data = extendedDataMap[rowId];
+                            string pm25Formatted = data.Pm25.ToString("00.0");
+                            string pm10Formatted = data.Pm10.ToString("00.0"); 
 
-							// 分段發送，減輕 FPGA 接收負擔
-							serialPort.Write($"C{enCityName}:{rawTempStr},{humiValue},{enCondition},");
-							System.Threading.Thread.Sleep(20);
-							serialPort.Write($"A:{data.Aqi},{data.Pm25:F1},{data.Pm10:F1},");
-							System.Threading.Thread.Sleep(20);
+                            // 分段發送，減輕 FPGA 接收負擔
+                            serialPort.DiscardInBuffer();
+                            serialPort.DiscardOutBuffer();
+                            serialPort.Write($"C:{enCityName},{rawTempStr},{humiValue},{enCondition},A:{data.Aqi},{pm25Formatted},{pm10Formatted},");
+							System.Threading.Thread.Sleep(50);
 							foreach (var f in extendedDataMap[rowId].Forecasts)
 							{
                                 double popValue = double.Parse(f.pop);
-                                int popPercent = (int)(popValue * 100);
+                                string popFormatted = popValue.ToString("000");
 
-                                serialPort.Write($"F:{f.Date},{f.TempMax},{f.TempMin},{f.Humi},{popPercent}\n");
+                                serialPort.Write($"F:{f.Date},{f.TempMax},{f.TempMin},{f.Humi},{popFormatted}\n");
                                 System.Threading.Thread.Sleep(50);
 							}
 
@@ -321,21 +323,48 @@ namespace WeatherApp
                 {
                     string fUrl = $"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={apiKey}&units=metric";
                     JObject fData = JObject.Parse(await client.GetStringAsync(fUrl));
+
                     var seen = new HashSet<string>();
+
+                    // 【修改重點】：直接將今天加入 seen，這樣迴圈遇到今天就會自動 continue
+                    string todayDate = DateTime.Now.ToString("yyyy-MM-dd");
+                    seen.Add(todayDate);
+
+                    // 1. 在迴圈前，先預處理出每一天的 Max POP
+                    var dailyStats = fData["list"]
+                        .GroupBy(item => item["dt_txt"].ToString().Substring(0, 10))
+                        .ToDictionary(
+                            group => group.Key,
+                            group => new {
+                                MaxPop = (int)(group.Max(item => (double)item["pop"]) * 100),
+                                MaxTemp = group.Max(item => (double)item["main"]["temp_max"]),
+                                MinTemp = group.Min(item => (double)item["main"]["temp_min"])
+                            }
+                        );
+
+                    // 2. 開始跑迴圈
                     foreach (var item in fData["list"])
                     {
-                        string dtTxt = item["dt_txt"].ToString();
-                        string dateKey = dtTxt.Substring(0, 10);
-                        if (!dtTxt.Contains("12:00:00") || seen.Contains(dateKey)) continue;
+                        string dateKey = item["dt_txt"].ToString().Substring(0, 10);
+                        DateTime dKey = DateTime.Parse(dateKey);
+
+                        if (dKey <= DateTime.Now) continue;
+                        if (seen.Contains(dateKey)) continue;
                         if (extData.Forecasts.Count >= 5) break;
+
                         seen.Add(dateKey);
+
+                        // 從預先算好的字典拿資料
+                        var stats = dailyStats[dateKey];
+
                         extData.Forecasts.Add(new DailyForecast
                         {
-                            Date = DateTime.Parse(dateKey).ToString("MM/dd"),
-                            TempMax = Math.Round(Convert.ToDouble(item["main"]["temp_max"]), 1).ToString("00.0"),
-                            TempMin = Math.Round(Convert.ToDouble(item["main"]["temp_min"]), 1).ToString("00.0"),
-							Humi = item["main"]["humidity"].ToString(),
-							pop = Math.Round(Convert.ToDouble(item["pop"]) * 100).ToString("00"),
+                            Date = dKey.ToString("MM/dd"),
+                            // 使用統計出來的當日最高/最低
+                            TempMax = Math.Round(stats.MaxTemp, 1).ToString("00.0"),
+                            TempMin = Math.Round(stats.MinTemp, 1).ToString("00.0"),
+                            Humi = item["main"]["humidity"].ToString(), // 濕度通常取該時段即可，或也可改用平均
+                            pop = stats.MaxPop.ToString("000"),
                         });
                     }
                 }
@@ -375,6 +404,22 @@ namespace WeatherApp
             lsWeather.Items.Add(row);
             extendedDataMap[id] = extData;
             idCounter++;
+        }
+
+        // 在 C# 程式中加入這個計算函式
+        private int CalculateDailyPop(JArray forecastList, string targetDate)
+        {
+            // 篩選出該日期當天的所有時間點
+            var dailyItems = forecastList.Where(item =>
+                item["dt_txt"].ToString().StartsWith(targetDate)).ToList();
+
+            if (!dailyItems.Any()) return 0;
+
+            // 策略：取該天所有時間點中的「最大機率」
+            // 如果該天任一時段有 80% 機率下雨，則該天綜合顯示 80% (Apple 天氣邏輯)
+            double maxPop = dailyItems.Max(item => (double)item["pop"]);
+
+            return (int)(maxPop * 100);
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)

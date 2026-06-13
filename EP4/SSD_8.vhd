@@ -77,7 +77,7 @@ architecture beh of SSD_8 is
 			  when "100100" => return "0111111"; -- -
 			  when "100101" => return "0011100"; -- *
 			  when "100110" => return "0101101"; -- /
-			  when others   => return "1111111"; -- none (全滅)
+			  when others   => return "1111111"; -- none
 		 end case;
 	end function;
 	signal scan_cnt	:integer range 0 to 7;
